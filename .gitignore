@@ -6,3 +6,5 @@ Src/
 !Inc/BME280.h
 !Src/main.c
 !Src/BME280.c
+BME280/
+BME280/*
