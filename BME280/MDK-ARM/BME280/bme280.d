@@ -1,5 +1,5 @@
-bme280\bme280.o: ..\..\..\Projects\KievWeather\BMP280 STM Lib\BME280.c
-bme280\bme280.o: ..\..\..\Projects\KievWeather\BMP280 STM Lib\BME280.h
+bme280\bme280.o: ..\..\BMP280 STM Lib\BME280.c
+bme280\bme280.o: ..\..\BMP280 STM Lib\BME280.h
 bme280\bme280.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
 bme280\bme280.o: ../Inc/stm32f4xx_hal_conf.h
 bme280\bme280.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h

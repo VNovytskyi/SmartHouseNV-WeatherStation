@@ -410,7 +410,7 @@
             <File>
               <FileName>BME280.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\Projects\KievWeather\BMP280 STM Lib\BME280.c</FilePath>
+              <FilePath>..\..\BMP280 STM Lib\BME280.c</FilePath>
             </File>
           </Files>
         </Group>

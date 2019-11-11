@@ -50,8 +50,12 @@ int main(void)
 	
   while (1)
   {
+		/*
 		tf = BME280_ReadTemperature();
 		sprintf(str1, "Temperature: %.3f *C\r\n", tf);
+		*/
+		
+		sprintf(str1, "Hello from STM32!!!\n");
 		HAL_UART_Transmit(&huart1,(uint8_t*)str1,strlen(str1),0x1000);
 		
 		HAL_Delay(1000);
