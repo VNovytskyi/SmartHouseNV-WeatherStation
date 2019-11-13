@@ -16,6 +16,31 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `address`
+--
+
+DROP TABLE IF EXISTS `address`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `address` (
+  `idaddress` int(11) NOT NULL AUTO_INCREMENT,
+  `Name` varchar(100) NOT NULL,
+  PRIMARY KEY (`idaddress`),
+  UNIQUE KEY `Name` (`Name`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `address`
+--
+
+LOCK TABLES `address` WRITE;
+/*!40000 ALTER TABLE `address` DISABLE KEYS */;
+INSERT INTO `address` VALUES (1,'Тестовый адресс');
+/*!40000 ALTER TABLE `address` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `weathercharacteristics`
 --
 
@@ -24,12 +49,15 @@ DROP TABLE IF EXISTS `weathercharacteristics`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `weathercharacteristics` (
   `idweatherCharacteristics` int(11) NOT NULL AUTO_INCREMENT,
+  `idaddress` int(11) NOT NULL,
   `DateTime` datetime NOT NULL,
   `Temperature` varchar(4) NOT NULL,
   `Humidity` varchar(4) NOT NULL,
   `Pressure` varchar(6) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`idweatherCharacteristics`),
-  UNIQUE KEY `DateTime` (`DateTime`)
+  UNIQUE KEY `DateTime` (`DateTime`),
+  KEY `idaddress` (`idaddress`),
+  CONSTRAINT `weathercharacteristics_ibfk_1` FOREIGN KEY (`idaddress`) REFERENCES `address` (`idaddress`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -39,7 +67,7 @@ CREATE TABLE `weathercharacteristics` (
 
 LOCK TABLES `weathercharacteristics` WRITE;
 /*!40000 ALTER TABLE `weathercharacteristics` DISABLE KEYS */;
-INSERT INTO `weathercharacteristics` VALUES (1,'2019-11-13 10:00:00','14','60','1000');
+INSERT INTO `weathercharacteristics` VALUES (1,1,'2019-11-13 10:00:00','14','60','1000');
 /*!40000 ALTER TABLE `weathercharacteristics` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -52,4 +80,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-11-13 17:14:51
+-- Dump completed on 2019-11-13 20:54:01
