@@ -44,6 +44,11 @@
             <td>Temperature</td>
             <td>Humidity</td>
             <td>Pressure</td>
+            <td>boolRain</td>
+            <td>probabilityRain</td>
+            <td>lightAmount</td>
+            <td>windDirection</td>
+            <td>windStrength</td>
         </tr>
 
         <?php
@@ -60,7 +65,7 @@
             
             //echo "Connected successfully";
 
-            $sql = "SELECT `idweatherCharacteristics`, `DateTime`, `Temperature`, `Humidity`, `Pressure` FROM `weathercharacteristics` WHERE 1";
+            $sql = "SELECT *     FROM `weathercharacteristics` WHERE 1";
             $result = $conn->query($sql);
 
             if ($result->num_rows > 0) {
@@ -71,6 +76,11 @@
                     echo    "<td>" . $row["Temperature"] . " &degC</td>";
                     echo    "<td>" . $row["Humidity"] . "   %</td>";
                     echo    "<td>" . $row["Pressure"] . "</td>";
+                    echo    "<td>" . $row["boolRain"] . "</td>";
+                    echo    "<td>" . $row["probabilityRain"] . "</td>";
+                    echo    "<td>" . $row["lightAmount"] . "</td>";
+                    echo    "<td>" . $row["windDirection"] . "</td>";
+                    echo    "<td>" . $row["windStrength"] . "</td>";
                     echo "</tr>";
                 }
             } else {
