@@ -24,9 +24,8 @@ static void MX_USART2_UART_Init(void);
 void PC_Send(char *str);
 
 //Send command to ESP via USART2: TX(PD_5), RX(PD_6), 115200
-bool ESP_SendCommand(char *command);
+char *ESP_SendCommand(char *command);
 
-void ESP_ReadAnswer();
 
 int main(void)
 {
@@ -44,23 +43,10 @@ int main(void)
 	
   while(1)
   {
-		PC_Send("\nSend command AT\n");
-		ESP_SendCommand("AT");
-		ESP_ReadAnswer();
-		
-		PC_Send(RX_buff);
+		PC_Send("\nSend command AT");
+		PC_Send(ESP_SendCommand("AT"));
 		HAL_Delay(1000);
   }
-}
-
-void ESP_ReadAnswer()
-{
-	memset(RX_buff, 0, RX_buff_size);
-	
-	while(strlen(RX_buff) == 0)
-	{
-		HAL_UART_Receive(&huart2, (uint8_t *)RX_buff, RX_buff_size, 100);
-	}
 }
 
 void PC_Send(char *str)
@@ -69,11 +55,20 @@ void PC_Send(char *str)
 }
 
 
-bool ESP_SendCommand(char *command)
+char *ESP_SendCommand(char *command)
 {
 	sprintf(TX_buff, "%s\r\n", command);
 	
 	HAL_UART_Transmit(&huart2,(uint8_t*)TX_buff, strlen(TX_buff), 100);
+	
+	memset(RX_buff, 0, RX_buff_size);
+	
+	while(strlen(RX_buff) == 0)
+	{
+		HAL_UART_Receive(&huart2, (uint8_t *)RX_buff, RX_buff_size, 100);
+	}
+	
+	return RX_buff;
 }
 
 void SystemClock_Config(void)
