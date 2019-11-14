@@ -1,1 +1,1 @@
-http://localhost/addWeather.php?t=12&h=50&p=1000&a=1
+http://localhost/addWeather.php?a=1&t=12&h=50&p=1000

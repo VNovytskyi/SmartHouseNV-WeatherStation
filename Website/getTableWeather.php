@@ -39,7 +39,7 @@
 <body>
     <table>
         <tr>
-            <td>idweatherCharacteristics</td>
+            <td>id</td>
             <td>DateTime</td>
             <td>Temperature</td>
             <td>Humidity</td>
