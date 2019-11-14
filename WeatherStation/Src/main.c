@@ -1,26 +1,14 @@
-/* USER CODE BEGIN Header */
-/**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
-  */
-/* USER CODE END Header */
-
-/* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "BME280.h"
+#include "stdbool.h"
+
+#define RX_buff_size 64
+char RX_buff[RX_buff_size];
+
+#define TX_buff_size 64
+char TX_buff[TX_buff_size];
+
+char str1[100];
 
 I2C_HandleTypeDef hi2c1;
 UART_HandleTypeDef huart1;
@@ -31,13 +19,17 @@ static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
-_Bool ESP_SendCommand(char *command);
+
+//Send string to PC via USART1: 115200
+void PC_Send(char *str);
+
+//Send command to ESP via USART2: TX(PD_5), RX(PD_6), 115200
+bool ESP_SendCommand(char *command);
+
+void ESP_ReadAnswer();
 
 int main(void)
 {
-	char str1[100];
-	float tf = 0.0f, pf = 0.0f, af = 0.0f, hf = 0.0f;
-	
   HAL_Init();
   SystemClock_Config();
 	
@@ -45,34 +37,43 @@ int main(void)
   MX_I2C1_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
+  
+	PC_Send("\nStart\n");
+	PC_Send("\nSend command ATE0\n");
+	ESP_SendCommand("ATE0");
 	
-	BME280_Init();
-	
-  while (1)
+  while(1)
   {
-		tf = BME280_ReadTemperature();
-		pf = BME280_ReadPressure();
-		hf = BME280_ReadHumidity();
-		af = BME280_ReadAltitude(SEALEVELPRESSURE_PA);
+		PC_Send("\nSend command AT\n");
+		ESP_SendCommand("AT");
+		ESP_ReadAnswer();
 		
-		sprintf(str1, "Temperature = %.2f\nHumidity = %.2f\nPressure = %.2f\nAltitude = %.2f\r\n\n", tf, hf, pf, af);
-		
-		HAL_UART_Transmit(&huart1,(uint8_t*)str1,strlen(str1),0x1000);
-		
+		PC_Send(RX_buff);
 		HAL_Delay(1000);
   }
 }
 
-
-_Bool ESP_SendCommand(char *command)
+void ESP_ReadAnswer()
 {
-	//Check!!!
-	char commandBuff[16];
-	sprintf(commandBuff, "%s\r\n", command);
-	HAL_UART_Transmit(&huart2,(uint8_t*)commandBuff, strlen(commandBuff),0x1000);
+	memset(RX_buff, 0, RX_buff_size);
 	
-	//Receive answer! How to?
-	return false;
+	while(strlen(RX_buff) == 0)
+	{
+		HAL_UART_Receive(&huart2, (uint8_t *)RX_buff, RX_buff_size, 100);
+	}
+}
+
+void PC_Send(char *str)
+{
+	HAL_UART_Transmit(&huart1,(uint8_t*)str,strlen(str),100);
+}
+
+
+bool ESP_SendCommand(char *command)
+{
+	sprintf(TX_buff, "%s\r\n", command);
+	
+	HAL_UART_Transmit(&huart2,(uint8_t*)TX_buff, strlen(TX_buff), 100);
 }
 
 void SystemClock_Config(void)
@@ -109,11 +110,7 @@ void SystemClock_Config(void)
   }
 }
 
-/**
-  * @brief I2C1 Initialization Function
-  * @param None
-  * @retval None
-  */
+
 static void MX_I2C1_Init(void)
 {
 
@@ -154,12 +151,6 @@ static void MX_I2C1_Init(void)
   /* USER CODE END I2C1_Init 2 */
 
 }
-
-/**
-  * @brief USART1 Initialization Function
-  * @param None
-  * @retval None
-  */
 static void MX_USART1_UART_Init(void)
 {
 
@@ -187,12 +178,6 @@ static void MX_USART1_UART_Init(void)
   /* USER CODE END USART1_Init 2 */
 
 }
-
-/**
-  * @brief USART2 Initialization Function
-  * @param None
-  * @retval None
-  */
 static void MX_USART2_UART_Init(void)
 {
 
@@ -220,12 +205,6 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE END USART2_Init 2 */
 
 }
-
-/**
-  * @brief GPIO Initialization Function
-  * @param None
-  * @retval None
-  */
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -233,6 +212,7 @@ static void MX_GPIO_Init(void)
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
@@ -247,15 +227,6 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
 }
-
-/* USER CODE BEGIN 4 */
-
-/* USER CODE END 4 */
-
-/**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
