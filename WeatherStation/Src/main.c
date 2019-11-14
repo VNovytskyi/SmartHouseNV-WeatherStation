@@ -26,16 +26,16 @@ I2C_HandleTypeDef hi2c1;
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 
-char str1[100];
-
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
+_Bool ESP_SendCommand(char *command);
 
 int main(void)
 {
+	char str1[100];
 	float tf = 0.0f, pf = 0.0f, af = 0.0f, hf = 0.0f;
 	
   HAL_Init();
@@ -63,10 +63,18 @@ int main(void)
   }
 }
 
-/**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+
+_Bool ESP_SendCommand(char *command)
+{
+	//Check!!!
+	char commandBuff[16];
+	sprintf(commandBuff, "%s\r\n", command);
+	HAL_UART_Transmit(&huart2,(uint8_t*)commandBuff, strlen(commandBuff),0x1000);
+	
+	//Receive answer! How to?
+	return false;
+}
+
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
