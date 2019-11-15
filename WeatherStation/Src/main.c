@@ -1,6 +1,10 @@
 #include "main.h"
 #include "BME280.h"
 #include "stdbool.h"
+#include "stdio.h" 
+
+#define BOOL_ANSWER_SIZE 8
+char bool_answer[BOOL_ANSWER_SIZE];
 
 #define RX_buff_size 64
 char RX_buff[RX_buff_size];
@@ -26,6 +30,11 @@ void PC_Send(char *str);
 //Send command to ESP via USART2: TX(PD_5), RX(PD_6), 115200
 char *ESP_SendCommand(char *command);
 
+//Send command "AT" and return answer as true/false
+bool ESP_Test();
+
+//Enable/Disable echo command
+bool ESP_Set_Echo(bool enableEcho);
 
 int main(void)
 {
@@ -43,18 +52,53 @@ int main(void)
 	
   while(1)
   {
-		PC_Send("\nSend command AT");
-		PC_Send(ESP_SendCommand("AT"));
+		//PC_Send("\nSend command AT");
+		//PC_Send(ESP_SendCommand("AT"));
+		
+		if(ESP_Set_Echo(false))
+			PC_Send("ATE Command OK\n");
+		else
+			PC_Send("ATE Command ERROR\n");
+		
+		
+		if(ESP_Test())
+			PC_Send("AT Test OK\n");
+		else
+			PC_Send("AT Test ERROR\n");
+		
+		
 		HAL_Delay(1000);
   }
 }
 
+bool ESP_Set_Echo(bool enableEcho)
+{
+	char *str1 = "ATE0\r\n";
+	char *str2 = "ATE1\r\n";
+	
+	if(enableEcho)
+		HAL_UART_Transmit(&huart2,(uint8_t*)str2, strlen(str2), 100);
+	else
+		HAL_UART_Transmit(&huart2,(uint8_t*)str1, strlen(str1), 100);
+	
+	HAL_UART_Receive(&huart2, (uint8_t *)bool_answer, BOOL_ANSWER_SIZE, 100);
+	
+	return strstr(bool_answer, "OK") == NULL? false: true;
+}
+
+bool ESP_Test()
+{
+	char *str = "AT\r\n";
+	HAL_UART_Transmit(&huart2,(uint8_t*)str, strlen(str), 100);
+	
+	HAL_UART_Receive(&huart2, (uint8_t *)bool_answer, BOOL_ANSWER_SIZE, 100);
+	
+	return strstr(bool_answer, "OK") == NULL? false: true;
+}
 void PC_Send(char *str)
 {
 	HAL_UART_Transmit(&huart1,(uint8_t*)str,strlen(str),100);
 }
-
-
 char *ESP_SendCommand(char *command)
 {
 	sprintf(TX_buff, "%s\r\n", command);
