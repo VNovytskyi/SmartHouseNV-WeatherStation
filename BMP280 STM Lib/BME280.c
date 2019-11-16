@@ -8,7 +8,7 @@ int32_t temper_int;
 //------------------------------------------------
 void Error(void)
 {
-  LED_OFF;
+	
 }
 //------------------------------------------------
 static void I2Cx_WriteData(uint16_t Addr, uint8_t Reg, uint8_t Value)
@@ -274,7 +274,6 @@ void BME280_Init(void)
 {
   uint8_t value=0;
   uint32_t value32=0;
-  LED_ON;
 	value = BME280_ReadReg(BME280_REG_ID);
 	sprintf(str1, "\r\n\r\nID: 0x%02X\r\n", value);
 	HAL_UART_Transmit(&huart2,(uint8_t*)str1,strlen(str1),0x1000);
