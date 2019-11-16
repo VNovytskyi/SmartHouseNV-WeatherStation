@@ -8,7 +8,6 @@ int32_t temper_int;
 //------------------------------------------------
 void Error(void)
 {
-  LED_OFF;
 }
 //------------------------------------------------
 static void I2Cx_WriteData(uint16_t Addr, uint8_t Reg, uint8_t Value)

@@ -1,5 +1,5 @@
 #include "main.h"
-//#include "BME280.h"
+#include "BME280.h"
 #include "ESP8266.h"
 
 char str1[100];
