@@ -27,27 +27,37 @@ int main(void)
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   
-	PC_Send("\nStart\n");
-	PC_Send("\nSend command ATE0\n");
-	ESP_SendCommand("ATE0");
+	PC_Send("Start\n");
 	
-  while(1)
+	//Disable echo
+	if(ESP_Set_Echo(false))
+		PC_Send("ATE Command OK\n");
+	else
+		PC_Send("ATE Command ERROR!\n");
+	
+	//AT test
+	if(ESP_Test())
+		PC_Send("AT Test OK\n");
+	else
+		PC_Send("AT Test ERROR!\n");
+	
+	//Connect to wifi
+	if(connectTo("MERCUSYS_7EBA", "3105vlad3010vlada"))
+		PC_Send("Connect to wi-fi success\n");
+	else
+		PC_Send("Connect to wi-fi ERROR!\n");
+	
+	//Send request
+	if(sendRequest("TCP", "api.thingspeak.com", 80, "GET /update?api_key=2W2LPB8P9XOQ4LI7&field1=1"))
+		PC_Send("Send data success\n");
+	else
+		PC_Send("Send data ERROR!\n");
+	
+	PC_Send("Done");
+	
+	while(1)
   {
-		//PC_Send("\nSend command AT");
-		//PC_Send(ESP_SendCommand("AT"));
-		
-		if(ESP_Set_Echo(false))
-			PC_Send("ATE Command OK\n");
-		else
-			PC_Send("ATE Command ERROR\n");
-		
-		
-		if(ESP_Test())
-			PC_Send("AT Test OK\n");
-		else
-			PC_Send("AT Test ERROR\n");
-		
-		
+		PC_Send(".");
 		HAL_Delay(1000);
   }
 }
