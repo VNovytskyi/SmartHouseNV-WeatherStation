@@ -27,7 +27,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   
-	PC_Send("Start\n");
+	PC_Send("\nStart\n");
 	
 	//Disable echo
 	if(ESP_Set_Echo(false))
@@ -47,11 +47,19 @@ int main(void)
 	else
 		PC_Send("Connect to wi-fi ERROR!\n");
 	
+	/*
 	//Send request
 	if(sendRequest("TCP", "api.thingspeak.com", 80, "GET /update?api_key=2W2LPB8P9XOQ4LI7&field1=1"))
 		PC_Send("Send data success\n");
 	else
 		PC_Send("Send data ERROR!\n");
+	*/
+	
+	//Disconnect
+	if(disconnectWifi())
+		PC_Send("Disconnect OK\n");
+	else
+		PC_Send("Disconnect ERROR\n");
 	
 	PC_Send("Done");
 	
