@@ -4,8 +4,13 @@
 
 char str1[100];
 
+//For BME280
 I2C_HandleTypeDef hi2c1;
+
+//For PC
 UART_HandleTypeDef huart1;
+
+//For ESP-01
 UART_HandleTypeDef huart2;
 
 void SystemClock_Config(void);
@@ -47,13 +52,15 @@ int main(void)
 	else
 		PC_Send("Connect to wi-fi ERROR!\n");
 	
-	/*
 	//Send request
-	if(sendRequest("TCP", "api.thingspeak.com", 80, "GET /update?api_key=2W2LPB8P9XOQ4LI7&field1=1"))
+	bool requestStatus;
+	//requestStatus = sendRequest("TCP", "api.thingspeak.com", 80, "GET /update?api_key=2W2LPB8P9XOQ4LI7&field1=29");
+	requestStatus = sendRequest("TCP", "192.168.1.102/addWeather.php", 80, "GET ?t=26&h=80&p=1100&a=1");
+	
+	if(requestStatus)
 		PC_Send("Send data success\n");
 	else
 		PC_Send("Send data ERROR!\n");
-	*/
 	
 	//Disconnect
 	if(disconnectWifi())
