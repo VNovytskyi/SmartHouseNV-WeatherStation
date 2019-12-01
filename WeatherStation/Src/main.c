@@ -50,10 +50,26 @@ int main(void)
 	
 	//Connect to wifi
 	if(connectTo("MERCUSYS_7EBA", "3105vlad3010vlada"))
-		PC_Send("Connect to wi-fi success\n");
+	{
+		PC_Send("Connect to MERCUSYS_7EBA success\n");
+	}
 	else
-		PC_Send("Connect to wi-fi ERROR!\n");
-	
+	{
+		PC_Send("Connect to MERCUSYS_7EBA ERROR!\n");
+		
+		if(connectTo("Xperia XA1_178c", "3105vlad"))
+		{
+			PC_Send("Connect to Xperia XA1_178c success\n");
+		}
+		else
+		{
+			PC_Send("Connect to Xperia XA1_178c ERROR!\n");
+			
+			PC_Send("Could not connect to any wifi! Program return -1");
+			return -1;
+		}
+	}
+		
 	//Send request
 	bool requestStatus = false;
 	
