@@ -1,11 +1,7 @@
 #include "BME280.h"
 //------------------------------------------------
 extern I2C_HandleTypeDef hi2c1;
-
-extern char str1[100];
-
 BME280_CalibData CalibData;
-
 int32_t temper_int;
 //------------------------------------------------
 void Error(void)

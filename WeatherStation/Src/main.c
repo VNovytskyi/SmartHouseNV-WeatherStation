@@ -2,7 +2,7 @@
 #include "BME280.h"
 #include "ESP8266.h"
 
-char str1[100];
+char tempStr[128];
 
 //For BME280
 I2C_HandleTypeDef hi2c1;
@@ -31,6 +31,8 @@ int main(void)
   MX_I2C1_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
+	
+	BME280_Init();
   
 	PC_Send("\nStart\n");
 	
@@ -53,10 +55,18 @@ int main(void)
 		PC_Send("Connect to wi-fi ERROR!\n");
 	
 	//Send request
-	bool requestStatus;
-	//requestStatus = sendRequest("TCP", "api.thingspeak.com", 80, "GET /update?api_key=2W2LPB8P9XOQ4LI7&field1=29");
-	requestStatus = sendRequest("TCP", "192.168.1.102/addWeather.php", 80, "GET ?t=26&h=80&p=1100&a=1");
+	bool requestStatus = false;
 	
+	int humidity = (int)roundf(BME280_ReadHumidity());
+	int pressure = (int)roundf(BME280_ReadPressure() * 0.00075);
+	int temperature = (int)roundf(BME280_ReadTemperature());
+	
+	sprintf(tempStr, "GET /addWeather.php?t=%d&h=%d&p=%d&a=1", temperature, humidity, pressure);
+	PC_Send(tempStr);
+	requestStatus = sendRequest("TCP", "192.168.1.102", 80, tempStr);
+	
+	//requestStatus = sendRequest("TCP", "api.thingspeak.com", 80, "GET /update?api_key=2W2LPB8P9XOQ4LI7&field1=29");
+
 	if(requestStatus)
 		PC_Send("Send data success\n");
 	else
