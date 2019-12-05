@@ -38,32 +38,32 @@ int main(void)
 	
 	//Disable echo
 	if(ESP_Set_Echo(false))
-		PC_Send("ATE Command OK\n");
+		PC_Send("[ OK ] ATE Command \n");
 	else
-		PC_Send("ATE Command ERROR!\n");
+		PC_Send("[ ERROR ] ATE Command\n");
 	
 	//AT test
 	if(ESP_Test())
-		PC_Send("AT Test OK\n");
+		PC_Send("[ OK ] AT Test\n");
 	else
-		PC_Send("AT Test ERROR!\n");
+		PC_Send("[ ERROR ] AT Test\n");
 	
 	//Connect to wifi
 	if(connectTo("MERCUSYS_7EBA", "3105vlad3010vlada"))
 	{
-		PC_Send("Connect to MERCUSYS_7EBA success\n");
+		PC_Send("[ OK ] Connect to MERCUSYS_7EBA\n");
 	}
 	else
 	{
-		PC_Send("Connect to MERCUSYS_7EBA ERROR!\n");
+		PC_Send("[ ERROR ]Connect to MERCUSYS_7EBA\n");
 		
 		if(connectTo("Xperia XA1_178c", "3105vlad"))
 		{
-			PC_Send("Connect to Xperia XA1_178c success\n");
+			PC_Send("[ OK ] Connect to Xperia XA1_178c\n");
 		}
 		else
 		{
-			PC_Send("Connect to Xperia XA1_178c ERROR!\n");
+			PC_Send("[ ERROR ] Connect to Xperia XA1_178c\n");
 			
 			PC_Send("Could not connect to any wifi! Program return -1");
 			return -1;
@@ -78,21 +78,18 @@ int main(void)
 	int temperature = (int)roundf(BME280_ReadTemperature());
 	
 	sprintf(tempStr, "GET /addWeather.php?t=%d&h=%d&p=%d&a=1", temperature, humidity, pressure);
-	PC_Send(tempStr);
 	requestStatus = sendRequest("TCP", "192.168.1.102", 80, tempStr);
-	
-	//requestStatus = sendRequest("TCP", "api.thingspeak.com", 80, "GET /update?api_key=2W2LPB8P9XOQ4LI7&field1=29");
 
 	if(requestStatus)
-		PC_Send("Send data success\n");
+		PC_Send("[ OK ] Send data\n");
 	else
-		PC_Send("Send data ERROR!\n");
+		PC_Send("[ ERROR] Send data\n");
 	
 	//Disconnect
 	if(disconnectWifi())
-		PC_Send("Disconnect OK\n");
+		PC_Send("[ OK ] Disconnect\n");
 	else
-		PC_Send("Disconnect ERROR\n");
+		PC_Send("[ ERROR ] Disconnect\n");
 	
 	PC_Send("Done");
 	
