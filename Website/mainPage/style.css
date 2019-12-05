@@ -1,3 +1,7 @@
+/****************************************************************************************************
+    General styles
+*/
+
 body
 {
     margin: 0;
@@ -7,8 +11,8 @@ body
 
 i 
 {
+    color: rgb(231, 230, 230);
     margin: 0;
-    color: white;
     padding: 6px;
 }
 
@@ -18,11 +22,10 @@ i
     height: 120vh;
 }
 
-#slide4
-{
-    max-width: 100vw;
-    height: 50vh;
-}
+
+/****************************************************************************************************
+    Slide 1
+*/
 
 #slide1
 {
@@ -33,13 +36,26 @@ i
     background-size: 100%; /* Современные браузеры */ 
 }
 
+#slide1Content
+{ 
+    color :white;
+    font-family: 'Advent Pro';
+    font-size: 120px;
+    margin-top: 30vh;
+    margin-left: 50px;
+}
+
+/****************************************************************************************************
+    Slide 2
+*/
+
 #slide2
 {
     background-color: black;
 }
 
 
-/*
+/****************************************************************************************************
     Slide 3
 */
 
@@ -58,11 +74,19 @@ h1
     text-align: center;
 }
 
-h2
+h2, h3
 {
-    color: white;
+    color: rgb(231, 230, 230);
     padding: 0px;
     text-align: center;
+}
+
+h3{
+    font-size: 16px;
+}
+
+p{
+    color: rgb(231, 230, 230);
 }
 
 #flexContentContainer
@@ -101,13 +125,16 @@ h2
     display: block;
     
 }
-/*
+
+/****************************************************************************************************
     Slide 4
 */
 
 #slide4
 {
     background-color: black;
+    max-width: 100vw;
+    height: 50vh;
 }
 
 #gray
@@ -132,15 +159,6 @@ h2
     width: 50%;
 }
 
-#mainInfo
-{      
-    
-}
 
-#slide1Content
-{ 
-    background-color: tomato;
-    margin-top: 30vh;
-}
 
     

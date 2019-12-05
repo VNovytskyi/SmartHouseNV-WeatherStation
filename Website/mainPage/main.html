@@ -4,11 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.min.css">
     <title>KievWeather</title>
     <link href="style.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Advent+Pro&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/052fa37aec.js" crossorigin="anonymous"></script>
+    <script>
+        var xhr = new XMLHttpRequest();
+
+        xhr.open('GET', 'http://192.168.1.102/getJSONLastWeather.php', true);
+
+        xhr.send();
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState != 4) return;
+
+            if (xhr.status != 200) 
+            {
+                alert(xhr.status + ': ' + xhr.statusText);
+            } 
+            else 
+            {
+                var AWS = JSON.parse(xhr.responseText);
+
+                document.getElementById("AWS_LastUpdate").innerHTML = "last update: " + AWS["DateTime"];
+                document.getElementById("AWS_LastTemperature").innerHTML += AWS["Temperature"];
+                document.getElementById("AWS_LastHumidity").innerHTML += AWS["Humidity"];
+                document.getElementById("AWS_LastPressure").innerHTML += AWS["Pressure"];
+            }
+        }
+    </script>
 </head>
 <body>
     <div id="slide1">
@@ -17,7 +41,7 @@
                 <i class="fa fa-cloud fa-3x"></i>
             </div>
             <div id="slide1Content">
-                <div id="mainInfo">hello</div>
+                <div id="mainInfo">23&deg</div>
             </div>
         </div>
     </div>
@@ -69,6 +93,10 @@
     </div>
     <div id="slide3">
         <h1>Current weather from AWS</h1>
+        <h3 id="AWS_LastUpdate"></h3>
+        <p id="AWS_LastTemperature"><i class="fas fa-thermometer-half"></i></p>
+        <p id="AWS_LastHumidity"><i class="fas fa-tint"></i></p>
+        <p id="AWS_LastPressure"><i class="fab fa-product-hunt"></i></p>
     </div>
     <div id="slide4">
             

@@ -20,7 +20,7 @@
     }
 
     //Insert data into DB
-    $sql = "INSERT INTO `weathercharacteristics` (`idweatherCharacteristics`, `idaddress`, `DateTime`, `Temperature`, `Humidity`, `Pressure`) 
+    $sql = "INSERT INTO `weatherdata` (`idweatherCharacteristics`, `idaddress`, `DateTime`, `Temperature`, `Humidity`, `Pressure`) 
             VALUES (NULL, '$addressID', now(), '$temperature', '$humidity', '$pressure')";
 
     if ($conn->query($sql) === TRUE) {
