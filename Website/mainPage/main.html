@@ -5,43 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>KievWeather</title>
-    <link href="style.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Advent+Pro&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/hamButton.css">
+    <link rel="stylesheet" href="css/search.css">
     <script src="https://kit.fontawesome.com/052fa37aec.js" crossorigin="anonymous"></script>
-    <script>
-        var xhr = new XMLHttpRequest();
-
-        xhr.open('GET', 'http://192.168.1.102/getJSONLastWeather.php', true);
-
-        xhr.send();
-
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState != 4) return;
-
-            if (xhr.status != 200) 
-            {
-                alert(xhr.status + ': ' + xhr.statusText);
-            } 
-            else 
-            {
-                var AWS = JSON.parse(xhr.responseText);
-
-                document.getElementById("AWS_LastUpdate").innerHTML = "last update: " + AWS["DateTime"];
-                document.getElementById("AWS_LastTemperature").innerHTML += AWS["Temperature"];
-                document.getElementById("AWS_LastHumidity").innerHTML += AWS["Humidity"];
-                document.getElementById("AWS_LastPressure").innerHTML += AWS["Pressure"];
-            }
-        }
-    </script>
+    <script src="js/requestAPI.js"></script>
+    <script src="js/search.js"></script>
 </head>
 <body>
     <div id="slide1">
         <div id="gray">
             <div id="menu">
-                <i class="fa fa-cloud fa-3x"></i>
+                <div id="iconDiv"><img id="mainIcon"></div>
+                
+                <div id="menuButton">
+                    <svg class="ham hamRotate ham1" viewBox="0 0 100 100" width="80" onclick="this.classList.toggle('active')">
+                        <path class="line top" d="m 30,33 h 40 c 0,0 9.044436,-0.654587 9.044436,-8.508902 0,-7.854315 -8.024349,-11.958003 -14.89975,-10.85914 -6.875401,1.098863 -13.637059,4.171617 -13.637059,16.368042 v 40" />
+                        <path class="line middle" d="m 30,50 h 40" />
+                        <path class="line bottom" d="m 30,67 h 40 c 12.796276,0 15.357889,-11.717785 15.357889,-26.851538 0,-15.133752 -4.786586,-27.274118 -16.667516,-27.274118 -11.88093,0 -18.499247,6.994427 -18.435284,17.125656 l 0.252538,40" />
+                    </svg>
+                </div>
             </div>
             <div id="slide1Content">
-                <div id="mainInfo">23&deg</div>
+                <div id="mainTemperature"></div>
+                <div id="humidityAndPressureBlock">
+                    <div><p id="mainHumidity"><i class="fas fa-tint"></i></p></div>
+                    <div><p id="mainPressure"><i class="fab fa-product-hunt"></i></p></div>
+                </div>
             </div>
         </div>
     </div>

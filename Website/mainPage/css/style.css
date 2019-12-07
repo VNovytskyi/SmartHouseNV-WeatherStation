@@ -36,14 +36,67 @@ i
     background-size: 100%; /* Современные браузеры */ 
 }
 
-#slide1Content
+#mainTemperature
 { 
     color :white;
     font-family: 'Advent Pro';
-    font-size: 120px;
-    margin-top: 30vh;
+    font-size: 140px;
     margin-left: 50px;
+    width: fit-content;
+    height: fit-content;
 }
+
+#mainIcon
+{
+    width: 80px;
+    height: 80px;
+}
+
+#humidityAndPressureBlock
+{
+    width: fit-content;
+    display: block;
+    font-size: 28px;
+    margin-left: 15px;
+
+}
+
+#slide1Content
+{
+    display: flex;
+    width: fit-content;
+    height: fit-content;
+    margin-top: 23vh;
+}
+
+#menuButton
+{
+    margin-right: 0px;
+    margin-left: auto;
+    width: 100px;
+}
+
+#iconDiv
+{
+    float: left;
+}
+
+/*
+#slide1Content
+{
+    background-color: red;
+}
+
+#mainTemperature
+{
+    background-color: blue;
+}
+
+#humidityAndPressureBlock
+{
+    background-color: lightgreen;
+}
+*/
 
 /****************************************************************************************************
     Slide 2
@@ -158,7 +211,3 @@ p{
     margin-right: auto;
     width: 50%;
 }
-
-
-
-    
