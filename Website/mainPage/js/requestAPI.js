@@ -14,6 +14,8 @@ RequestFromAWS.send();
 RequestFromSW.send();
 RequestFromSW5days.send();
 
+
+
 //Answer from autonomous weather station
 RequestFromAWS.onreadystatechange = function() {
     if (this.readyState != 4) return;
@@ -49,14 +51,19 @@ RequestFromSW.onreadystatechange = function() {
         console.log("[ OK ] Answer from SimpleWeather (current weather)");
         ObjRequestFromSW = JSON.parse(this.responseText);
 
-        $("#mainIcon").attr("src","http://openweathermap.org/img/wn/" + ObjRequestFromSW.weather[0].icon + "@2x.png");
-        $("#mainTemperature").html(Math.round(ObjRequestFromSW.main.temp - 273) + "&deg");
-        $("#mainPressure").append(Math.round(ObjRequestFromSW.main.pressure / 133 * 100));
-        $("#mainHumidity").append(Math.round(ObjRequestFromSW.main.humidity));
-        $("#webIcon").attr("src","http://openweathermap.org/img/wn/" + ObjRequestFromSW.weather[0].icon + "@2x.png");
-        $("#mainDescription").html(ObjRequestFromSW.weather[0].main + ", " + ObjRequestFromSW.weather[0].description);
-
+        document.getElementById("mainIcon").src = "http://openweathermap.org/img/wn/" + ObjRequestFromSW.weather[0].icon + "@2x.png";
+        document.getElementById("mainTemperature").innerHTML += Math.round(ObjRequestFromSW.main.temp - 273) + "&deg";
+        document.getElementById("mainPressure").innerHTML += Math.round(ObjRequestFromSW.main.pressure / 133 * 100);
+        document.getElementById("mainHumidity").innerHTML += Math.round(ObjRequestFromSW.main.humidity);
+        document.getElementById("webIcon").href = "http://openweathermap.org/img/wn/" + ObjRequestFromSW.weather[0].icon + "@2x.png";
+        document.getElementById("mainDescription").innerHTML += ObjRequestFromSW.weather[0].main + ", " + ObjRequestFromSW.weather[0].description;
         
+        //$("#mainIcon").attr("src","http://openweathermap.org/img/wn/" + ObjRequestFromSW.weather[0].icon + "@2x.png");
+        //$("#mainTemperature").html(Math.round(ObjRequestFromSW.main.temp - 273) + "&deg");
+        //$("#mainPressure").append(Math.round(ObjRequestFromSW.main.pressure / 133 * 100));
+        //$("#mainHumidity").append(Math.round(ObjRequestFromSW.main.humidity));
+        //$("#webIcon").attr("src","http://openweathermap.org/img/wn/" + ObjRequestFromSW.weather[0].icon + "@2x.png");
+        //$("#mainDescription").html(ObjRequestFromSW.weather[0].main + ", " + ObjRequestFromSW.weather[0].description);
     }
 };
 

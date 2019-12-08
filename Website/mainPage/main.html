@@ -8,35 +8,63 @@
     <!--Dynamic page icon-->
     <link id="webIcon" rel="shortcut icon" type="image/png">
 
-    <!--Add font "Advent Pro"-->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Advent+Pro&display=swap">
-
-    <!--FontAwesome Icons-->
-    <script src="https://kit.fontawesome.com/052fa37aec.js" crossorigin="anonymous"></script>
+    <!--Preload-->
+    <link rel="stylesheet" href="css/preload.css"></link>
 
     <!--Main style file-->
-    <link href="css/style.css" rel="stylesheet">
+    <link async href="css/style.css" rel="stylesheet">
 
     <!--HamButton in main menu-->
-    <link rel="stylesheet" href="css/hamButton.css">
+    <link async rel="stylesheet" href="css/hamButton.css">
     
     <!--Add form-->
-    <link rel="stylesheet" href="css/form.css">
+    <link async rel="stylesheet" href="css/form.css">
 
     <!--Jquery-->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script async src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <!--Form actions-->
+    <script async src="js/form.js"></script>
+
+    <!--Add font "Advent Pro"-->
+    <link async rel="stylesheet" href="https://fonts.googleapis.com/css?family=Advent+Pro&display=swap">
+            
+    <!--FontAwesome Icons-->
+    <script async src="https://kit.fontawesome.com/052fa37aec.js" crossorigin="anonymous"></script>
 
     <!--Request from AWS and SW-->
     <script id="requestAPI" src="js/requestAPI.js"></script>
+    
+    <script>    
+        var img = new Image();
+        img.src = "https://vip-buss.com.ua/wp-content/uploads/2014/12/bronirovanie-mest-avtobus-lugansk-kiev-kiev-lugansk.jpg";
+        //img.src = "img/photo.jpg";
+        
+        window.onload = function()
+        {
+            document.getElementById("loaderPage").style.display = "none";
+            document.getElementById("mainPage").style.display = "block"; 
+        };
 
-    <!--Form actions-->
-    <script src="js/form.js"></script>
+        img.onload = function() 
+        { 
+            console.log("[ OK ] Load main img");
+
+            document.getElementById("slide1").style.backgroundImage = 'url(' + img.src + ')';
+            document.getElementById("slide1").style.backgroundRepeat = 'no-repeat';
+        }
+    </script>
+</head>
 <body>
     <!--Loader page-->
-    <div id="loaderPage"></div>
+    <div id="loaderPage">
+        <div class="box">
+            <div class="loader-29"></div>
+         </div>
+    </div>
 
-    <!--Main page-->
-    <div id="mainPage" style="display:none;">
+    <!--Main page"-->
+    <div id="mainPage">
         <div id="id01" class="modal">
             <form id="menuForm" class="modal-content animate">
                 <button id="closeFormButton" type="button" onclick="closeForm()" class="cancelbtn">&times</button>
@@ -124,18 +152,6 @@
         <div id="slide4">
             
         </div>
-        
-        <!--Main page end-->
-    </div>
+    </div><!--Main page end-->
 </body>
 </html>
-
-<script>
-        function bodyLoaded()
-        {
-            document.getElementById("loaderPage").style.display = "none";
-            document.getElementById("mainPage").style.display = "block";
-        }
-
-        bodyLoaded();
-    </script>

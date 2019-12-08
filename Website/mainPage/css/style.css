@@ -29,13 +29,17 @@ i
     height: 120vh;
 }
 
+#mainPage
+{
+    display: none;
+}
+
 /****************************************************************************************************
     Slide 1
 */
 
 #slide1
 {
-    background: url("https://vip-buss.com.ua/wp-content/uploads/2014/12/bronirovanie-mest-avtobus-lugansk-kiev-kiev-lugansk.jpg") no-repeat;
     -moz-background-size: 100%; /* Firefox 3.6+ */
     -webkit-background-size: 100%; /* Safari 3.1+ и Chrome 4.0+ */
     -o-background-size: 100%; /* Opera 9.6+ */

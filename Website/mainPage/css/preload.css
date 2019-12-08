@@ -1,0 +1,59 @@
+.box 
+{
+    font-size: 40px;
+    position: absolute;
+    margin: 0;
+    top: 50%;
+    left:50%;
+}
+
+button 
+{
+    display: inline-block;
+    background: transparent;
+    border: 2px solid currentcolor;
+    color: white;
+    padding: .5em 1em;
+    border-radius: 5px;
+    font-size: calc(16px + 2vw);
+}
+
+[class*="loader-"] 
+{
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    color: inherit;
+    vertical-align: middle;
+    pointer-events: none;
+}
+
+.loader-29 
+{
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 .1em currentcolor, -.5em -.5em 0 -.4em currentcolor, 0 -.7em 0 -.4em currentcolor, .5em -.5em 0 -.4em currentcolor, -.5em .5em 0 -.4em currentcolor, 0 .7em 0 -.4em currentcolor, .5em .5em 0 -.4em currentcolor, -.7em 0 0 -.4em currentcolor, .7em 0 0 -.4em currentcolor;
+    -webkit-animation: 1s loader-29 linear infinite;
+            animation: 1s loader-29 linear infinite;
+}
+
+@-webkit-keyframes loader-29 {
+    0% {
+        -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+                transform: rotate(360deg);
+    }
+}
+
+@keyframes loader-29 {
+    0% {
+        -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+                transform: rotate(360deg);
+    }
+}
