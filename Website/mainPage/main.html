@@ -5,20 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>KievWeather</title>
+
+    <!--Dynamic page icon-->
+    <link id="webIcon" rel="shortcut icon" type="image/png">
+    
+    <!--Main style file-->
     <link href="css/style.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Advent+Pro&display=swap" rel="stylesheet">
+
+    <!--HamButton in main menu-->
     <link rel="stylesheet" href="css/hamButton.css">
-    <link rel="stylesheet" href="css/search.css">
+    
+    <!--Add font "Advent Pro"-->
+    <link href="https://fonts.googleapis.com/css?family=Advent+Pro&display=swap" rel="stylesheet">
+
+    <!--Jquery-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <!--FontAwesome Icons-->
     <script src="https://kit.fontawesome.com/052fa37aec.js" crossorigin="anonymous"></script>
+
+    <!--Request from AWS and SW-->
     <script src="js/requestAPI.js"></script>
-    <script src="js/search.js"></script>
 </head>
 <body>
     <div id="slide1">
         <div id="gray">
             <div id="menu">
                 <div id="iconDiv"><img id="mainIcon"></div>
-                
                 <div id="menuButton">
                     <svg class="ham hamRotate ham1" viewBox="0 0 100 100" width="80" onclick="this.classList.toggle('active')">
                         <path class="line top" d="m 30,33 h 40 c 0,0 9.044436,-0.654587 9.044436,-8.508902 0,-7.854315 -8.024349,-11.958003 -14.89975,-10.85914 -6.875401,1.098863 -13.637059,4.171617 -13.637059,16.368042 v 40" />
@@ -34,6 +47,7 @@
                     <div><p id="mainPressure"><i class="fab fa-product-hunt"></i></p></div>
                 </div>
             </div>
+            <div id="mainDescription"></div>
         </div>
     </div>
     <div id="slide2">
@@ -90,7 +104,7 @@
         <p id="AWS_LastPressure"><i class="fab fa-product-hunt"></i></p>
     </div>
     <div id="slide4">
-            
+        
     </div>
 </body>
 </html>

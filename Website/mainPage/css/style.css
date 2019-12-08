@@ -22,7 +22,6 @@ i
     height: 120vh;
 }
 
-
 /****************************************************************************************************
     Slide 1
 */
@@ -61,6 +60,11 @@ i
 
 }
 
+#mainHumidity
+{
+    margin-left: 5px;
+}
+
 #slide1Content
 {
     display: flex;
@@ -81,6 +85,15 @@ i
     float: left;
 }
 
+#mainDescription
+{
+    margin-left: 50px;
+    width: fit-content;
+    font-size: 22px;
+    font-family: 'Advent Pro';
+    color: white;
+}
+
 /*
 #slide1Content
 {
@@ -95,6 +108,11 @@ i
 #humidityAndPressureBlock
 {
     background-color: lightgreen;
+}
+
+#mainDescription
+{
+    background-color: coral;
 }
 */
 

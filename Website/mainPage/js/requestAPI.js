@@ -38,9 +38,11 @@ RequestFromOW.onreadystatechange = function() {
     {
         var obj = JSON.parse(this.responseText);
 
-        document.getElementById("mainTemperature").innerHTML += Math.round(obj.main.temp - 273) + "&deg";
-        document.getElementById("mainIcon").src = "http://openweathermap.org/img/wn/" + obj.weather[0].icon + "@2x.png";
-        document.getElementById("mainPressure").innerHTML += Math.round(obj.main.pressure / 133 * 100);
-        document.getElementById("mainHumidity").innerHTML += Math.round(obj.main.humidity);
+        $("#mainIcon").attr("src","http://openweathermap.org/img/wn/" + obj.weather[0].icon + "@2x.png");
+        $("#mainTemperature").html(Math.round(obj.main.temp - 273) + "&deg");
+        $("#mainPressure").append(Math.round(obj.main.pressure / 133 * 100));
+        $("#mainHumidity").append(Math.round(obj.main.humidity));
+        $("#webIcon").html("http://openweathermap.org/img/wn/" + obj.weather[0].icon + "@2x.png");
+        $("#mainDescription").html(obj.weather[0].main + ", " + obj.weather[0].description);
     }
 };      
