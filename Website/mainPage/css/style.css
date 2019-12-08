@@ -1,6 +1,7 @@
 /****************************************************************************************************
     General styles
 */
+input {outline:none;}
 
 body
 {
@@ -109,6 +110,8 @@ i
     font-family: 'Advent Pro';
     color: white;
 }
+
+
 
 /*
 #slide1Content

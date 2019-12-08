@@ -7,113 +7,135 @@
 
     <!--Dynamic page icon-->
     <link id="webIcon" rel="shortcut icon" type="image/png">
-    
+
+    <!--Add font "Advent Pro"-->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Advent+Pro&display=swap">
+
+    <!--FontAwesome Icons-->
+    <script src="https://kit.fontawesome.com/052fa37aec.js" crossorigin="anonymous"></script>
+
     <!--Main style file-->
     <link href="css/style.css" rel="stylesheet">
 
     <!--HamButton in main menu-->
     <link rel="stylesheet" href="css/hamButton.css">
     
-    <!--Add font "Advent Pro"-->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Advent+Pro&display=swap">
-
     <!--Add form-->
     <link rel="stylesheet" href="css/form.css">
 
     <!--Jquery-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
-    <!--FontAwesome Icons-->
-    <script src="https://kit.fontawesome.com/052fa37aec.js" crossorigin="anonymous"></script>
-
     <!--Request from AWS and SW-->
-    <script src="js/requestAPI.js"></script>
+    <script id="requestAPI" src="js/requestAPI.js"></script>
 
     <!--Form actions-->
     <script src="js/form.js"></script>
 <body>
-    <div id="id01" class="modal">
-        <form class="modal-content animate" action="/action_page.php" method="post">
-            <button type="button" onclick="closeForm()" class="cancelbtn">Cancel</button>
-        </form>
-    </div>
-    <div id="slide1">
-        <div id="gray">
-            <div id="menu">
-                <div id="iconDiv"><img id="mainIcon"><div id="iconText">KyivWeather</div></div>
-                <div id="menuButton">
-                    <svg id="hamButton" class="ham hamRotate ham1" viewBox="0 0 100 100" width="80" onclick="hamButtonClick()">
-                        <path class="line top" d="m 30,33 h 40 c 0,0 9.044436,-0.654587 9.044436,-8.508902 0,-7.854315 -8.024349,-11.958003 -14.89975,-10.85914 -6.875401,1.098863 -13.637059,4.171617 -13.637059,16.368042 v 40" />
-                        <path class="line middle" d="m 30,50 h 40" />
-                        <path class="line bottom" d="m 30,67 h 40 c 12.796276,0 15.357889,-11.717785 15.357889,-26.851538 0,-15.133752 -4.786586,-27.274118 -16.667516,-27.274118 -11.88093,0 -18.499247,6.994427 -18.435284,17.125656 l 0.252538,40" />
-                    </svg>
+    <!--Loader page-->
+    <div id="loaderPage"></div>
+
+    <!--Main page-->
+    <div id="mainPage" style="display:none;">
+        <div id="id01" class="modal">
+            <form id="menuForm" class="modal-content animate">
+                <button id="closeFormButton" type="button" onclick="closeForm()" class="cancelbtn">&times</button>
+                <div id="FormLabelMenu">Menu</div>
+                <ul id="myUL">
+                    <li><a href="">Adele</a></li>
+                </ul>
+            </form>
+        </div>  
+        <div id="slide1">
+            <div id="gray">
+                <div id="menu">
+                    <div id="iconDiv"><img id="mainIcon"><div id="iconText">KyivWeather</div></div>
+                    <div id="menuButton">
+                        <svg id="hamButton" class="ham hamRotate ham1" viewBox="0 0 100 100" width="80" onclick="hamButtonClick()">
+                            <path class="line top" d="m 30,33 h 40 c 0,0 9.044436,-0.654587 9.044436,-8.508902 0,-7.854315 -8.024349,-11.958003 -14.89975,-10.85914 -6.875401,1.098863 -13.637059,4.171617 -13.637059,16.368042 v 40" />
+                            <path class="line middle" d="m 30,50 h 40" />
+                            <path class="line bottom" d="m 30,67 h 40 c 12.796276,0 15.357889,-11.717785 15.357889,-26.851538 0,-15.133752 -4.786586,-27.274118 -16.667516,-27.274118 -11.88093,0 -18.499247,6.994427 -18.435284,17.125656 l 0.252538,40" />
+                        </svg>
+                    </div>
                 </div>
-            </div>
-            <div id="slide1Content">
-                <div id="mainTemperature"></div>
-                <div id="humidityAndPressureBlock">
-                    <div><p id="mainHumidity"><i class="fas fa-tint"></i></p></div>
-                    <div><p id="mainPressure"><i class="fab fa-product-hunt"></i></p></div>
+                <div id="slide1Content">
+                    <div id="mainTemperature"></div>
+                    <div id="humidityAndPressureBlock">
+                        <div><p id="mainHumidity"><i class="fas fa-tint"></i></p></div>
+                        <div><p id="mainPressure"><i class="fab fa-product-hunt"></i></p></div>
+                    </div>
                 </div>
-            </div>
-            <div id="mainDescription"></div>
-        </div>
-    </div>
-    <div id="slide2">
-        <h1>SimpleWeather</h1>
-        <h2>Forecast for the next days</h2>
-        <div id="flexContentContainer">
-            <div class="containers">
-                <p>14.08.2019</p>
-                <p><i class="fas fa-thermometer-half"></i></i>23&deg</p>
-                <p><i class="fas fa-umbrella"></i>45</p>
-                <p><i class="fas fa-tint"></i>60</p>
-                <p><i class="fab fa-product-hunt"></i>770</p>
-                <button>More</button>
-            </div>
-            <div class="containers">
-                <p>14.08.2019</p>
-                <p><i class="fas fa-thermometer-half"></i></i>23&deg</p>
-                <p><i class="fas fa-umbrella"></i>45</p>
-                <p><i class="fas fa-tint"></i>60</p>
-                <p><i class="fab fa-product-hunt"></i>770</p>
-                <button>More</button>
-            </div>
-            <div class="containers">
-                <p>14.08.2019</p>
-                <p><i class="fas fa-thermometer-half"></i></i>23&deg</p>
-                <p><i class="fas fa-umbrella"></i>45</p>
-                <p><i class="fas fa-tint"></i>60</p>
-                <p><i class="fab fa-product-hunt"></i>770</p>
-                <button>More</button>
-            </div>
-            <div class="containers">
-                <p>14.08.2019</p>
-                <p><i class="fas fa-thermometer-half"></i></i>23&deg</p>
-                <p><i class="fas fa-umbrella"></i>45</p>
-                <p><i class="fas fa-tint"></i>60</p>
-                <p><i class="fab fa-product-hunt"></i>770</p>
-                <button>More</button>
-            </div>
-            <div class="containers">
-                <p>14.08.2019</p>
-                <p><i class="fas fa-thermometer-half"></i></i>23&deg</p>
-                <p><i class="fas fa-umbrella"></i>45</p>
-                <p><i class="fas fa-tint"></i>60</p>
-                <p><i class="fab fa-product-hunt"></i>770</p>
-                <button>More</button>
+                <div id="mainDescription"></div>
             </div>
         </div>
-    </div>
-    <div id="slide3">
-        <h1>Current weather from AWS</h1>
-        <h3 id="AWS_LastUpdate"></h3>
-        <p id="AWS_LastTemperature"><i class="fas fa-thermometer-half"></i></p>
-        <p id="AWS_LastHumidity"><i class="fas fa-tint"></i></p>
-        <p id="AWS_LastPressure"><i class="fab fa-product-hunt"></i></p>
-    </div>
-    <div id="slide4">
+        <div id="slide2">
+            <h1>SimpleWeather</h1>
+            <h2>Forecast for the next days</h2>
+            <div id="flexContentContainer">
+                <div class="containers">
+                    <p>14.08.2019</p>
+                    <p><i class="fas fa-thermometer-half"></i></i>23&deg</p>
+                    <p><i class="fas fa-umbrella"></i>45</p>
+                    <p><i class="fas fa-tint"></i>60</p>
+                    <p><i class="fab fa-product-hunt"></i>770</p>
+                    <button>More</button>
+                </div>
+                <div class="containers">
+                    <p>14.08.2019</p>
+                    <p><i class="fas fa-thermometer-half"></i></i>23&deg</p>
+                    <p><i class="fas fa-umbrella"></i>45</p>
+                    <p><i class="fas fa-tint"></i>60</p>
+                    <p><i class="fab fa-product-hunt"></i>770</p>
+                    <button>More</button>
+                </div>
+                <div class="containers">
+                    <p>14.08.2019</p>
+                    <p><i class="fas fa-thermometer-half"></i></i>23&deg</p>
+                    <p><i class="fas fa-umbrella"></i>45</p>
+                    <p><i class="fas fa-tint"></i>60</p>
+                    <p><i class="fab fa-product-hunt"></i>770</p>
+                    <button>More</button>
+                </div>
+                <div class="containers">
+                    <p>14.08.2019</p>
+                    <p><i class="fas fa-thermometer-half"></i></i>23&deg</p>
+                    <p><i class="fas fa-umbrella"></i>45</p>
+                    <p><i class="fas fa-tint"></i>60</p>
+                    <p><i class="fab fa-product-hunt"></i>770</p>
+                    <button>More</button>
+                </div>
+                <div class="containers">
+                    <p>14.08.2019</p>
+                    <p><i class="fas fa-thermometer-half"></i></i>23&deg</p>
+                    <p><i class="fas fa-umbrella"></i>45</p>
+                    <p><i class="fas fa-tint"></i>60</p>
+                    <p><i class="fab fa-product-hunt"></i>770</p>
+                    <button>More</button>
+                </div>
+            </div>
+        </div>
+        <div id="slide3">
+            <h1>Current weather from AWS</h1>
+            <h3 id="AWS_LastUpdate"></h3>
+            <p id="AWS_LastTemperature"><i class="fas fa-thermometer-half"></i></p>
+            <p id="AWS_LastHumidity"><i class="fas fa-tint"></i></p>
+            <p id="AWS_LastPressure"><i class="fab fa-product-hunt"></i></p>
+        </div>
+        <div id="slide4">
+            
+        </div>
         
+        <!--Main page end-->
     </div>
 </body>
 </html>
+
+<script>
+        function bodyLoaded()
+        {
+            document.getElementById("loaderPage").style.display = "none";
+            document.getElementById("mainPage").style.display = "block";
+        }
+
+        bodyLoaded();
+    </script>

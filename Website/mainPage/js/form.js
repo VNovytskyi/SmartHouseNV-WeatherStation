@@ -17,4 +17,6 @@ function hamButtonClick()
 function closeForm()
 {
     document.getElementById('id01').style.display='none';
+    var hamButton = document.getElementById("hamButton");
+    hamButton.classList.toggle('active');
 }

@@ -55,6 +55,8 @@ RequestFromSW.onreadystatechange = function() {
         $("#mainHumidity").append(Math.round(ObjRequestFromSW.main.humidity));
         $("#webIcon").attr("src","http://openweathermap.org/img/wn/" + ObjRequestFromSW.weather[0].icon + "@2x.png");
         $("#mainDescription").html(ObjRequestFromSW.weather[0].main + ", " + ObjRequestFromSW.weather[0].description);
+
+        
     }
 };
 
