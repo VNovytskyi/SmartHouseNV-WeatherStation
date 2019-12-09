@@ -1,21 +1,12 @@
 .box 
 {
-    font-size: 40px;
-    position: absolute;
     margin: 0;
-    top: 50%;
-    left:50%;
-}
-
-button 
-{
-    display: inline-block;
-    background: transparent;
-    border: 2px solid currentcolor;
-    color: white;
-    padding: .5em 1em;
-    border-radius: 5px;
-    font-size: calc(16px + 2vw);
+    font-size: 50px;
+    position: absolute;
+    top: 46%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%)
 }
 
 [class*="loader-"] 

@@ -2,6 +2,7 @@ var RequestFromAWS = new XMLHttpRequest();
 var RequestFromSW = new XMLHttpRequest();
 var RequestFromSW5days = new XMLHttpRequest();
 
+//For debug in console
 var ObjRequestFromAWS, 
     ObjRequestFromSW, 
     ObjRequestFromSW5days;
@@ -13,8 +14,6 @@ RequestFromSW5days.open("GET", "http://api.openweathermap.org/data/2.5/forecast?
 RequestFromAWS.send();
 RequestFromSW.send();
 RequestFromSW5days.send();
-
-
 
 //Answer from autonomous weather station
 RequestFromAWS.onreadystatechange = function() {
