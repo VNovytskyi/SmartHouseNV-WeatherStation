@@ -12,16 +12,13 @@
     <link rel="stylesheet" href="css/preload.css"></link>
 
     <!--Main style file-->
-    <link async href="css/style.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
 
     <!--HamButton in main menu-->
     <link async rel="stylesheet" href="css/hamButton.css">
     
     <!--Add form-->
     <link async rel="stylesheet" href="css/form.css">
-
-    <!--Jquery-->
-    <script async src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     <!--Form actions-->
     <script async src="js/form.js"></script>
@@ -32,27 +29,43 @@
     <!--FontAwesome Icons-->
     <script async src="https://kit.fontawesome.com/052fa37aec.js" crossorigin="anonymous"></script>
 
+    <!--Jquery-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
     <!--Request from AWS and SW-->
     <script id="requestAPI" src="js/requestAPI.js"></script>
     
-    <script>    
+    <script>  
+     
+        function displayMainTemperature() {
+            $("#mainTemperature").fadeIn(1000);
+        }
+
+        function displayHumidityAndPressure() {
+            $("#humidityAndPressureBlock").fadeIn(1000);
+        }
+
+        function displayMainDescription() {
+            $("#mainDescription").fadeIn(1000);
+        }
+
         var img = new Image();
         img.src = "https://vip-buss.com.ua/wp-content/uploads/2014/12/bronirovanie-mest-avtobus-lugansk-kiev-kiev-lugansk.jpg";
-        //img.src = "img/photo.jpg";
-        
-        window.onload = function()
+            
+        $(document).ready(function() 
         {
-            //document.getElementById("loaderPage").style.display = "none";
-            //document.getElementById("mainPage").style.display = "block"; 
-        };
+            $("#loaderPage").fadeOut(1000);
+            $("#mainPage").fadeIn(2000);
+            setInterval(displayMainTemperature, 500);
+            setInterval(displayHumidityAndPressure, 500);
+            setInterval(displayMainDescription, 500);
+        });
 
-        img.onload = function() 
-        { 
-            console.log("[ OK ] Load main img");
-
-            document.getElementById("slide1").style.backgroundImage = 'url(' + img.src + ')';
-            document.getElementById("slide1").style.backgroundRepeat = 'no-repeat';
-        }
+        $(img).ready(function ()
+        {
+            $("#slide1").css("background-image", "url(" + img.src + ")");
+            $("#slide1").css("background-repeat", "no-repeat");
+        });
     </script>
 </head>
 <body>
@@ -63,7 +76,7 @@
          </div>
     </div>
 
-    <!--Main page"-->
+    <!--Main page-->
     <div id="mainPage">
         <div id="id01" class="modal">
             <form id="menuForm" class="modal-content animate">
@@ -86,14 +99,16 @@
                         </svg>
                     </div>
                 </div>
-                <div id="slide1Content">
-                    <div id="mainTemperature"></div>
-                    <div id="humidityAndPressureBlock">
-                        <div><p id="mainHumidity"><i class="fas fa-tint"></i></p></div>
-                        <div><p id="mainPressure"><i class="fab fa-product-hunt"></i></p></div>
+                <div>
+                    <div id="slide1Content">
+                        <div id="mainTemperature"></div>
+                        <div id="humidityAndPressureBlock">
+                            <div><p id="mainHumidity"><i class="fas fa-tint"></i></p></div>
+                            <div><p id="mainPressure"><i class="fab fa-product-hunt"></i></p></div>
+                        </div>
                     </div>
+                    <div id="mainDescription"></div>
                 </div>
-                <div id="mainDescription"></div>
             </div>
         </div>
         <div id="slide2">
@@ -155,3 +170,4 @@
     </div><!--Main page end-->
 </body>
 </html>
+

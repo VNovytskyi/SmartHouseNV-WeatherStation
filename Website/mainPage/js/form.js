@@ -16,7 +16,8 @@ function hamButtonClick()
 
 function closeForm()
 {
-    document.getElementById('id01').style.display='none';
+    //document.getElementById('id01').style.display='none';
+    $("#id01").fadeOut(200);
     var hamButton = document.getElementById("hamButton");
     hamButton.classList.toggle('active');
 }
