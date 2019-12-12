@@ -1,20 +1,19 @@
 #include "BME280.h"
 //------------------------------------------------
 extern I2C_HandleTypeDef hi2c1;
-extern UART_HandleTypeDef huart2;
-extern char str1[100];
 BME280_CalibData CalibData;
 int32_t temper_int;
 //------------------------------------------------
-void Error(void)
+void BME280_Error(void)
 {
+    
 }
 //------------------------------------------------
 static void I2Cx_WriteData(uint16_t Addr, uint8_t Reg, uint8_t Value)
 {
   HAL_StatusTypeDef status = HAL_OK;
   status = HAL_I2C_Mem_Write(&hi2c1, Addr, (uint16_t)Reg, I2C_MEMADD_SIZE_8BIT, &Value, 1, 0x10000);
-  if(status != HAL_OK) Error();
+  if(status != HAL_OK) BME280_Error();
 }
 //------------------------------------------------
 static uint8_t I2Cx_ReadData(uint16_t Addr, uint8_t Reg)
@@ -22,7 +21,7 @@ static uint8_t I2Cx_ReadData(uint16_t Addr, uint8_t Reg)
   HAL_StatusTypeDef status = HAL_OK;
   uint8_t value = 0;
   status = HAL_I2C_Mem_Read(&hi2c1, Addr, Reg, I2C_MEMADD_SIZE_8BIT, &value, 1, 0x10000);
-  if(status != HAL_OK) Error();
+  if(status != HAL_OK) BME280_Error();
   return value;
 }
 //------------------------------------------------
@@ -30,14 +29,14 @@ static void I2Cx_ReadData16(uint16_t Addr, uint8_t Reg, uint16_t *Value)
 {
   HAL_StatusTypeDef status = HAL_OK;
   status = HAL_I2C_Mem_Read(&hi2c1, Addr, Reg, I2C_MEMADD_SIZE_8BIT, (uint8_t*)Value, 2, 0x10000);
-  if(status != HAL_OK) Error();
+  if(status != HAL_OK) BME280_Error();
 }
 //------------------------------------------------
 static void I2Cx_ReadData24(uint16_t Addr, uint8_t Reg, uint32_t *Value)
 {
   HAL_StatusTypeDef status = HAL_OK;
   status = HAL_I2C_Mem_Read(&hi2c1, Addr, Reg, I2C_MEMADD_SIZE_8BIT, (uint8_t*)Value, 3, 0x10000);
-  if(status != HAL_OK) Error();
+  if(status != HAL_OK) BME280_Error();
 }
 //------------------------------------------------
 void BME280_WriteReg(uint8_t Reg, uint8_t Value)
@@ -88,60 +87,26 @@ uint8_t BME280_ReadStatus(void)
 //------------------------------------------------
 void BME280_ReadCoefficients(void)
 {
-  BME280_ReadReg_U16(BME280_REGISTER_DIG_T1,&CalibData.dig_T1);
-  sprintf(str1, "DIG_T1: %u\r\n", CalibData.dig_T1);
-  HAL_UART_Transmit(&huart2,(uint8_t*)str1,strlen(str1),0x1000);
-  BME280_ReadReg_S16(BME280_REGISTER_DIG_T2,&CalibData.dig_T2);
-  sprintf(str1, "DIG_T2: %d\r\n", CalibData.dig_T2);
-  HAL_UART_Transmit(&huart2,(uint8_t*)str1,strlen(str1),0x1000);
-  BME280_ReadReg_S16(BME280_REGISTER_DIG_T3,&CalibData.dig_T3);
-  sprintf(str1, "DIG_T3: %d\r\n", CalibData.dig_T3);
-  HAL_UART_Transmit(&huart2,(uint8_t*)str1,strlen(str1),0x1000);
-  BME280_ReadReg_U16(BME280_REGISTER_DIG_P1,&CalibData.dig_P1);
-  sprintf(str1, "DIG_P1: %u\r\n", CalibData.dig_P1);
-  HAL_UART_Transmit(&huart2,(uint8_t*)str1,strlen(str1),0x1000);
-  BME280_ReadReg_S16(BME280_REGISTER_DIG_P2,&CalibData.dig_P2);
-  sprintf(str1, "DIG_P2: %d\r\n", CalibData.dig_P2);
-  HAL_UART_Transmit(&huart2,(uint8_t*)str1,strlen(str1),0x1000);
-  BME280_ReadReg_S16(BME280_REGISTER_DIG_P3,&CalibData.dig_P3);
-  sprintf(str1, "DIG_P3: %d\r\n", CalibData.dig_P3);
-  HAL_UART_Transmit(&huart2,(uint8_t*)str1,strlen(str1),0x1000);
-  BME280_ReadReg_S16(BME280_REGISTER_DIG_P4,&CalibData.dig_P4);
-  sprintf(str1, "DIG_P4: %d\r\n", CalibData.dig_P4);
-  HAL_UART_Transmit(&huart2,(uint8_t*)str1,strlen(str1),0x1000);
-  BME280_ReadReg_S16(BME280_REGISTER_DIG_P5,&CalibData.dig_P5);
-  sprintf(str1, "DIG_P5: %d\r\n", CalibData.dig_P5);
-  HAL_UART_Transmit(&huart2,(uint8_t*)str1,strlen(str1),0x1000);
-  BME280_ReadReg_S16(BME280_REGISTER_DIG_P6,&CalibData.dig_P6);
-  sprintf(str1, "DIG_P6: %d\r\n", CalibData.dig_P6);
-  HAL_UART_Transmit(&huart2,(uint8_t*)str1,strlen(str1),0x1000);
+  BME280_ReadReg_U16(BME280_REGISTER_DIG_T1,&CalibData.dig_T1); 
+  BME280_ReadReg_S16(BME280_REGISTER_DIG_T2,&CalibData.dig_T2);  
+  BME280_ReadReg_S16(BME280_REGISTER_DIG_T3,&CalibData.dig_T3);  
+  
+  BME280_ReadReg_U16(BME280_REGISTER_DIG_P1,&CalibData.dig_P1); 
+  BME280_ReadReg_S16(BME280_REGISTER_DIG_P2,&CalibData.dig_P2);  
+  BME280_ReadReg_S16(BME280_REGISTER_DIG_P3,&CalibData.dig_P3);  
+  BME280_ReadReg_S16(BME280_REGISTER_DIG_P4,&CalibData.dig_P4); 
+  BME280_ReadReg_S16(BME280_REGISTER_DIG_P5,&CalibData.dig_P5);  
+  BME280_ReadReg_S16(BME280_REGISTER_DIG_P6,&CalibData.dig_P6);  
   BME280_ReadReg_S16(BME280_REGISTER_DIG_P7,&CalibData.dig_P7);
-  sprintf(str1, "DIG_P7: %d\r\n", CalibData.dig_P7);
-  HAL_UART_Transmit(&huart2,(uint8_t*)str1,strlen(str1),0x1000);
   BME280_ReadReg_S16(BME280_REGISTER_DIG_P8,&CalibData.dig_P8);
-  sprintf(str1, "DIG_P8: %d\r\n", CalibData.dig_P8);
-  HAL_UART_Transmit(&huart2,(uint8_t*)str1,strlen(str1),0x1000);
   BME280_ReadReg_S16(BME280_REGISTER_DIG_P9,&CalibData.dig_P9);
-  sprintf(str1, "DIG_P9: %d\r\n", CalibData.dig_P9);
-  HAL_UART_Transmit(&huart2,(uint8_t*)str1,strlen(str1),0x1000);
+  
   CalibData.dig_H1 = BME280_ReadReg(BME280_REGISTER_DIG_H1);
-  sprintf(str1, "DIG_H1: %d\r\n", CalibData.dig_H1);
-  HAL_UART_Transmit(&huart2,(uint8_t*)str1,strlen(str1),0x1000);
-  BME280_ReadReg_S16(BME280_REGISTER_DIG_H2,&CalibData.dig_H2);
-  sprintf(str1, "DIG_H2: %d\r\n", CalibData.dig_H2);
-  HAL_UART_Transmit(&huart2,(uint8_t*)str1,strlen(str1),0x1000);
+  BME280_ReadReg_S16(BME280_REGISTER_DIG_H2, &CalibData.dig_H2);
   CalibData.dig_H3 = BME280_ReadReg(BME280_REGISTER_DIG_H3);
-  sprintf(str1, "DIG_H3: %d\r\n", CalibData.dig_H3);
-  HAL_UART_Transmit(&huart2,(uint8_t*)str1,strlen(str1),0x1000);
   CalibData.dig_H4 = (BME280_ReadReg(BME280_REGISTER_DIG_H4) << 4) | (BME280_ReadReg(BME280_REGISTER_DIG_H4+1) & 0xF);
-  sprintf(str1, "DIG_H4: %d\r\n", CalibData.dig_H4);
-  HAL_UART_Transmit(&huart2,(uint8_t*)str1,strlen(str1),0x1000);
   CalibData.dig_H5 = (BME280_ReadReg(BME280_REGISTER_DIG_H5+1) << 4) | (BME280_ReadReg(BME280_REGISTER_DIG_H5) >> 4);
-  sprintf(str1, "DIG_H5: %d\r\n", CalibData.dig_H5);
-  HAL_UART_Transmit(&huart2,(uint8_t*)str1,strlen(str1),0x1000);
   CalibData.dig_H6 = (int8_t)BME280_ReadReg(BME280_REGISTER_DIG_H6);
-  sprintf(str1, "DIG_H6: %d\r\n", CalibData.dig_H3);
-  HAL_UART_Transmit(&huart2,(uint8_t*)str1,strlen(str1),0x1000);
 }
 //------------------------------------------------
 void BME280_SetStandby(uint8_t tsb) {
@@ -271,20 +236,21 @@ float BME280_ReadAltitude(float seaLevel)
 //------------------------------------------------
 void BME280_Init(void)
 {
-  uint8_t value=0;
-  uint32_t value32=0;
-  LED_ON;
+    uint8_t value=0;
+    uint32_t value32=0;
 	value = BME280_ReadReg(BME280_REG_ID);
-	sprintf(str1, "\r\n\r\nID: 0x%02X\r\n", value);
-	HAL_UART_Transmit(&huart2,(uint8_t*)str1,strlen(str1),0x1000);
+	
 	if(value !=BME280_ID)
 	{
-		Error();
+		BME280_Error();
 		return;
 	}
+    
 	BME280_WriteReg(BME280_REG_SOFTRESET,BME280_SOFTRESET_VALUE);
-	while (BME280_ReadStatus() & BME280_STATUS_IM_UPDATE) ;
-	BME280_ReadCoefficients();
+	
+    while (BME280_ReadStatus() & BME280_STATUS_IM_UPDATE);
+	
+    BME280_ReadCoefficients();
 	BME280_SetStandby(BME280_STBY_1000);
 	BME280_SetFilter(BME280_FILTER_4);
 	BME280_SetOversamplingTemper(BME280_OSRS_T_x4);
@@ -292,13 +258,7 @@ void BME280_Init(void)
 	BME280_SetOversamplingHum(BME280_OSRS_H_x1);
 	value32 = BME280_ReadReg(BME280_REG_CTRL_MEAS);
 	value32 |= BME280_ReadReg(BME280_REG_CTRL_HUM) << 8;
-	sprintf(str1, "Measurements status: %04X\r\n", value32);
-	HAL_UART_Transmit(&huart2,(uint8_t*)str1,strlen(str1),0x1000);
-	sprintf(str1, "Temperature: %s\r\nPressure: %s\r\nHumidity: %s\r\n",
-		(value32 & BME280_OSRS_T_MSK) ? "ON" : "OFF",
-		(value32 & BME280_OSRS_P_MSK) ? "ON" : "OFF",
-		((value32 >> 8) & BME280_OSRS_H_MSK) ? "ON" : "OFF");
-	HAL_UART_Transmit(&huart2,(uint8_t*)str1,strlen(str1),0x1000);
+	
 	BME280_SetMode(BME280_MODE_NORMAL);
 }
 //------------------------------------------------

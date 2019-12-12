@@ -1,101 +1,69 @@
-#include "main.h"
-#include "BME280.h"
-#include "ESP8266.h"
+#include <main.h>
 
-char tempStr[128];
+#include <math.h>
+#include <stdio.h>
+#include <string.h>
+
+#include "BME280.h"
 
 //For BME280
 I2C_HandleTypeDef hi2c1;
 
-//For PC
+//For Debug
 UART_HandleTypeDef huart1;
 
-//For ESP-01
+//For ESP8266
 UART_HandleTypeDef huart2;
+
 
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
-static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_USART1_UART_Init(void);
 
-//Send string to PC via USART1: 115200
 void PC_Send(char *str);
+
 
 int main(void)
 {
     HAL_Init();
-    SystemClock_Config();
-	
-    MX_GPIO_Init();
-    MX_I2C1_Init();
-    MX_USART1_UART_Init();
-    MX_USART2_UART_Init();
-	
-	BME280_Init();
   
-	PC_Send("\nStart\n");
-	
-	//Disable echo
-    //Not work
-	if(ESP_Set_Echo(false))
-		PC_Send("[ OK ] ATE Command \n");
-	else
-		PC_Send("[ ERROR ] ATE Command\n");
-	
-	//AT test
-	if(ESP_Test())
-		PC_Send("[ OK ] AT Test\n");
-	else
-		PC_Send("[ ERROR ] AT Test\n");
-	
-	//Connect to wifi
-	if(connectTo("MERCUSYS_7EBA", "3105vlad3010vlada"))
-	{
-		PC_Send("[ OK ] Connect to MERCUSYS_7EBA\n");
-	}
-	else
-	{
-		PC_Send("[ ERROR ]Connect to MERCUSYS_7EBA\n");
-		
-		if(connectTo("Xperia XA1_178c", "123456789"))
-		{
-			PC_Send("[ OK ] Connect to Xperia XA1_178c\n");
-		}
-		else
-		{
-			PC_Send("[ ERROR ] Connect to Xperia XA1_178c\n");
-			PC_Send("Could not connect to any wifi! Program return -1");
-			return -1;
-		}
-	}
+    SystemClock_Config();
 
-	bool requestStatus = false;
-	
-	int humidity = (int)roundf(BME280_ReadHumidity());
-	int pressure = (int)roundf(BME280_ReadPressure() * 0.00075);
-	int temperature = (int)roundf(BME280_ReadTemperature());
-	
-	sprintf(tempStr, "GET /addWeather.php?t=%d&h=%d&p=%d&a=1", temperature, humidity, pressure);
-	requestStatus = sendRequest("TCP", "192.168.1.102", 80, tempStr);
+    MX_GPIO_Init(); 
+    MX_I2C1_Init();
+    MX_USART2_UART_Init();
+    MX_USART1_UART_Init();
+    
+    
+    PC_Send("Start\n");
 
-	if(requestStatus)
-		PC_Send("[ OK ] Send data\n");
-	else
-		PC_Send("[ ERROR] Send data\n");
-	
-	if(disconnectWifi())
-		PC_Send("[ OK ] Disconnect\n");
-	else
-		PC_Send("[ ERROR ] Disconnect\n");
-	
-	PC_Send("Done");
-	
-	while(1)
-  {
-		PC_Send(".");
-		HAL_Delay(1000);
-  }
+    int BME280InitStatus = BME280_Init();
+    
+    if (BME280InitStatus == BME280_INIT_FAIL)
+    {
+        PC_Send("BME280_INIT_FAIL\n");
+        return -1;
+    }
+    else
+    {
+        PC_Send("BME280_INIT_OK\n");
+    }
+    
+    char buff[64];
+    
+    BME280_WeatherData *currentWeather;
+    
+    while (1)
+    {
+        currentWeather = BME280_GetWeatherData();
+        sprintf(buff, "%d %d %d\n", currentWeather->temperature, currentWeather->humidity, currentWeather->pressure);
+        PC_Send(buff);
+        
+        HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+        HAL_Delay(1000);
+    }
 }
 
 void PC_Send(char *str)
@@ -108,10 +76,6 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-  /** Configure the main internal regulator output voltage 
-  */
-  __HAL_RCC_PWR_CLK_ENABLE();
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
   /** Initializes the CPU, AHB and APB busses clocks 
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
@@ -161,23 +125,13 @@ static void MX_I2C1_Init(void)
   {
     Error_Handler();
   }
-  /** Configure Analogue filter 
-  */
-  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure Digital filter 
-  */
-  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
-  {
-    Error_Handler();
-  }
   /* USER CODE BEGIN I2C1_Init 2 */
 
   /* USER CODE END I2C1_Init 2 */
 
 }
+
+
 static void MX_USART1_UART_Init(void)
 {
 
@@ -205,6 +159,8 @@ static void MX_USART1_UART_Init(void)
   /* USER CODE END USART1_Init 2 */
 
 }
+
+
 static void MX_USART2_UART_Init(void)
 {
 
@@ -232,28 +188,30 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE END USART2_Init 2 */
 
 }
+
+
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOH_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
-  __HAL_RCC_GPIOG_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_13|GPIO_PIN_14, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : PG13 PG14 */
-  GPIO_InitStruct.Pin = GPIO_PIN_13|GPIO_PIN_14;
+  /*Configure GPIO pin : PC13 */
+  GPIO_InitStruct.Pin = GPIO_PIN_13;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
 }
+
+
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -262,21 +220,5 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
-/**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
-void assert_failed(uint8_t *file, uint32_t line)
-{ 
-  /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-     tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-  /* USER CODE END 6 */
-}
-#endif /* USE_FULL_ASSERT */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

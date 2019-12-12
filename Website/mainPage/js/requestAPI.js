@@ -66,6 +66,7 @@ RequestFromSW5days.onreadystatechange = function() {
         //ObjRequestFromSW5days.list[0].dt
 
         // echo date("Y-m-d H:i:s", 1575925200);
+        
 
     }
 };

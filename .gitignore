@@ -1,7 +1,5 @@
 Drivers/
-Inc/
 MDK-ARM/
-Src/
 !Inc/main.h
 !Inc/BME280.h
 !Src/main.c
