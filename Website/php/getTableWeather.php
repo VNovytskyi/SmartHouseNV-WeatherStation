@@ -44,17 +44,14 @@
             <td>Temperature</td>
             <td>Humidity</td>
             <td>Pressure</td>
-            <td>boolRain</td>
-            <td>probabilityRain</td>
-            <td>lightAmount</td>
-            <td>windDirection</td>
-            <td>windStrength</td>
+            
+            
         </tr>
 
         <?php
             $servername = "localhost";
             $username = "root";
-            $password = "3105vlad3010vlada";
+            $password = "";
             $db = "weatherstation";
 
             $conn = new mysqli($servername, $username, $password, $db);
@@ -65,22 +62,33 @@
             
             //echo "Connected successfully";
 
-            $sql = "SELECT *     FROM `weatherData` WHERE 1";
+            $sql = "SELECT * FROM `weatherData` WHERE 1";
             $result = $conn->query($sql);
 
             if ($result->num_rows > 0) {
                 while($row = $result->fetch_assoc()) {
                     echo "<tr>";
-                    echo    "<td>" . $row["idweatherCharacteristics"] . "</td>";
-                    echo    "<td>" . $row["DateTime"] . "</td>";
-                    echo    "<td>" . $row["Temperature"] . " &degC</td>";
-                    echo    "<td>" . $row["Humidity"] . "   %</td>";
-                    echo    "<td>" . $row["Pressure"] . "</td>";
+                    echo    "<td>" . $row["idWeatherData"] . "</td>";
+                    echo    "<td>" . $row["dateTime"] . "</td>";
+                    echo    "<td>" . $row["temperature"] . " &degC</td>";
+                    echo    "<td>" . $row["humidity"] . "   %</td>";
+                    echo    "<td>" . $row["pressure"] . "</td>";
+                    
+                    /*
                     echo    "<td>" . $row["boolRain"] . "</td>";
                     echo    "<td>" . $row["probabilityRain"] . "</td>";
                     echo    "<td>" . $row["lightAmount"] . "</td>";
                     echo    "<td>" . $row["windDirection"] . "</td>";
                     echo    "<td>" . $row["windStrength"] . "</td>";
+                    */
+
+                    /*
+                    <td>boolRain</td>
+                    <td>probabilityRain</td>
+                    <td>lightAmount</td>
+                    <td>windDirection</td>
+                    <td>windStrength</td>
+                    */
                     echo "</tr>";
                 }
             } else {
@@ -89,5 +97,9 @@
             $conn->close();
         ?>
     </table>
+
+    <?php
+        //echo date("Y-m-d H:i:s", 1575925200);
+    ?>
 </body>
 </html>

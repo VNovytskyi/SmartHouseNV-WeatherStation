@@ -1,16 +1,16 @@
 <?php
     // Example: http://localhost/addWeather.php?t=16&h=60&p=994&a=1
+    //http://localhost/weatherStation/addWeather.php?t=16&h=60&p=994
 
     //Get values from request
     $temperature = $_GET['t'];
     $humidity = $_GET['h'];
     $pressure = $_GET['p'];
-    $addressID = $_GET['a'];
 
     //Connect to server
     $servername = "localhost";
     $username = "root";
-    $password = "3105vlad3010vlada";
+    $password = "";
     $db = "weatherstation";
 
     $conn = new mysqli($servername, $username, $password, $db);
@@ -20,8 +20,8 @@
     }
 
     //Insert data into DB
-    $sql = "INSERT INTO `weatherdata` (`idweatherCharacteristics`, `idaddress`, `DateTime`, `Temperature`, `Humidity`, `Pressure`) 
-            VALUES (NULL, '$addressID', now(), '$temperature', '$humidity', '$pressure')";
+    $sql = "INSERT INTO `weatherdata` (`idWeatherData`, `DateTime`, `Temperature`, `Humidity`, `Pressure`) 
+            VALUES (NULL, now(), '$temperature', '$humidity', '$pressure')";
 
     if ($conn->query($sql) === TRUE) {
         echo "New record created successfully";

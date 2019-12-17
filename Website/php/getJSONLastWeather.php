@@ -3,7 +3,7 @@
         
     $username = "root";
     $servername = "localhost";
-    $password = "3105vlad3010vlada";
+    $password = "";
     $db = "weatherstation";
         
     $conn = new mysqli($servername, $username, $password, $db);
@@ -12,9 +12,9 @@
         die("Connection failed: " . $conn->connect_error);
     }
         
-    $sql = "SELECT `idweatherCharacteristics`,`idaddress`,`DateTime`,`Temperature`,`Humidity`,`Pressure` 
+    $sql = "SELECT `idWeatherData`,`dateTime`,`temperature`,`humidity`,`pressure` 
             FROM `weatherdata` 
-            WHERE `idweatherCharacteristics` = (SELECT MAX(`idweatherCharacteristics`) FROM `weatherdata`)";
+            WHERE `idWeatherData` = (SELECT MAX(`idWeatherData`) FROM `weatherdata`)";
 
     $result = $conn->query($sql);
 
@@ -22,12 +22,11 @@
         $row = $result->fetch_assoc();
 
     $arr = array(
-                    'idweatherCharacteristics' => $row["idweatherCharacteristics"],
-                    'idaddress' => $row['idaddress'],
-                    'DateTime' => $row['DateTime'],
-                    'Temperature' => $row["Temperature"],
-                    'Humidity' => $row["Humidity"],
-                    'Pressure' => $row["Pressure"],
+                    'idWeatherData' => $row["idWeatherData"],
+                    'dateTime' => $row['dateTime'],
+                    'temperature' => $row["temperature"],
+                    'humidity' => $row["humidity"],
+                    'pressure' => $row["pressure"],
                     );
             
         echo json_encode($arr);

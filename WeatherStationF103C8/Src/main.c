@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "BME280.h"
+#include "ESP8266.h"
 
 //For BME280
 I2C_HandleTypeDef hi2c1;
@@ -15,6 +16,8 @@ UART_HandleTypeDef huart1;
 //For ESP8266
 UART_HandleTypeDef huart2;
 
+char buff[64];
+bool requestStatus;
 
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
@@ -23,7 +26,6 @@ static void MX_USART2_UART_Init(void);
 static void MX_USART1_UART_Init(void);
 
 void PC_Send(char *str);
-
 
 int main(void)
 {
@@ -36,31 +38,28 @@ int main(void)
     MX_USART2_UART_Init();
     MX_USART1_UART_Init();
     
-    
     PC_Send("Start\n");
 
-    int BME280InitStatus = BME280_Init();
-    
-    if (BME280InitStatus == BME280_INIT_FAIL)
-    {
-        PC_Send("BME280_INIT_FAIL\n");
-        return -1;
-    }
-    else
-    {
-        PC_Send("BME280_INIT_OK\n");
-    }
-    
-    char buff[64];
-    
+    BME280_Init();
     BME280_WeatherData *currentWeather;
+    HAL_Delay(1000);
+    currentWeather = BME280_GetWeatherData();
+    
+    sprintf(buff, "GET /addWeather.php?t=%d&h=%d&p=%d&a=1", currentWeather->temperature, currentWeather->humidity, currentWeather->pressure);   
+    
+    PC_Send(buff);
+    PC_Send("\n");
+    
+    ESP8266_DisableEcho();
+    ESP8266_Test();
+    ESP8266_ConnectTo("MERCUSYS_7EBA", "3105vlad3010vlada");
+    ESP8266_SendRequest("TCP", "192.168.1.102", 80, buff);
+    ESP8266_DisconnectFromWifi();
+    
+    PC_Send("Done");
     
     while (1)
     {
-        currentWeather = BME280_GetWeatherData();
-        sprintf(buff, "%d %d %d\n", currentWeather->temperature, currentWeather->humidity, currentWeather->pressure);
-        PC_Send(buff);
-        
         HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
         HAL_Delay(1000);
     }
