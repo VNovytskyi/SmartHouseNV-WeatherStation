@@ -38,25 +38,22 @@ int main(void)
     MX_USART2_UART_Init();
     MX_USART1_UART_Init();
     
-    PC_Send("Start\n");
+    PC_Send("[ OK ] Start\n");
 
     BME280_Init();
     BME280_WeatherData *currentWeather;
     HAL_Delay(1000);
     currentWeather = BME280_GetWeatherData();
     
-    sprintf(buff, "GET /addWeather.php?t=%d&h=%d&p=%d&a=1", currentWeather->temperature, currentWeather->humidity, currentWeather->pressure);   
+    sprintf(buff, "GET /weatherStation/addWeather.php?t=%d&h=%d&p=%d", currentWeather->temperature, currentWeather->humidity, currentWeather->pressure);   
     
-    PC_Send(buff);
-    PC_Send("\n");
-    
-    ESP8266_DisableEcho();
-    ESP8266_Test();
+    //ESP8266_DisableEcho();
+    //ESP8266_Test();
     ESP8266_ConnectTo("MERCUSYS_7EBA", "3105vlad3010vlada");
     ESP8266_SendRequest("TCP", "192.168.1.102", 80, buff);
     ESP8266_DisconnectFromWifi();
     
-    PC_Send("Done");
+    PC_Send("[ OK ] Done\n");
     
     while (1)
     {
@@ -67,7 +64,7 @@ int main(void)
 
 void PC_Send(char *str)
 {
-	HAL_UART_Transmit(&huart1,(uint8_t*)str,strlen(str),100);
+	HAL_UART_Transmit(&huart1,(uint8_t*)str,strlen(str),1000);
 }
 
 void SystemClock_Config(void)
