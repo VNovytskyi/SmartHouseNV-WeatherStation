@@ -48,15 +48,12 @@ int main(void)
     //ESP8266_DisableEcho();
     ESP8266_Test();
     ESP8266_ConnectTo("MERCUSYS_7EBA", "3105vlad3010vlada");
-    
-    //sprintf(buff, "GET /weatherStation/addWeather.php?t=%d&h=%d&p=%d HTTP/1.1", currentWeather->temperature, currentWeather->humidity, currentWeather->pressure);           
-    //sprintf(buff, "GET /weatherStation/addWeather.php?t=%d&h=%d&p=%d", currentWeather->temperature, currentWeather->humidity, currentWeather->pressure);         
-    //sprintf(buff, "GET /getTableWeather.php");         
-    
-    //ESP8266_SendRequest("TCP", "192.168.1.102", 80, buff);
+             
+    sprintf(buff, "GET /weatherStation/addWeather.php?t=%d&h=%d&p=%d", currentWeather->temperature, currentWeather->humidity, currentWeather->pressure);                
+    ESP8266_SendRequest("TCP", "192.168.1.102", 80, buff);
    
-    sprintf(buff, "GET /update?api_key=2W2LPB8P9XOQ4LI7&field1=200");         
-    ESP8266_SendRequest("TCP", "api.thingspeak.com", 80, buff);
+    //sprintf(buff, "GET /update?api_key=2W2LPB8P9XOQ4LI7&field1=200");         
+    //ESP8266_SendRequest("TCP", "api.thingspeak.com", 80, buff);
     
 
     ESP8266_DisconnectFromWifi();
