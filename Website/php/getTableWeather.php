@@ -59,10 +59,8 @@
             if ($conn->connect_error) {
                 die("Connection failed: " . $conn->connect_error);
             }
-            
-            //echo "Connected successfully";
 
-            $sql = "SELECT * FROM `weatherData` WHERE 1";
+            $sql = "SELECT * FROM `weatherData` WHERE 1 ORDER BY `idWeatherData` DESC";
             $result = $conn->query($sql);
 
             if ($result->num_rows > 0) {
