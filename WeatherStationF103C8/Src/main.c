@@ -7,6 +7,8 @@
 #include "BME280.h"
 #include "ESP8266.h"
 
+
+
 //For BME280
 I2C_HandleTypeDef hi2c1;
 
@@ -39,19 +41,17 @@ int main(void)
     MX_USART1_UART_Init();
     
     PC_Send("[ OK ] Start\n");
-
-    BME280_Init();
-    BME280_WeatherData *currentWeather;
-    HAL_Delay(1000);
-    currentWeather = BME280_GetWeatherData();
     
-    sprintf(buff, "GET /weatherStation/addWeather.php?t=%d&h=%d&p=%d", currentWeather->temperature, currentWeather->humidity, currentWeather->pressure);                
+    BME280_Init();
+    BME280_WeatherData *currentWeather = NULL;
     
     ESP8266_ConnectTo("MERCUSYS_7EBA", "3105vlad3010vlada");
-    ESP8266_SendRequest("TCP", "192.168.1.102", 80, buff);  
-         
-    ESP8266_DisconnectFromWifi();
     
+    currentWeather = BME280_GetWeatherData();
+    sprintf(buff, "GET /weatherStation/addWeather.php?t=%d&h=%d&p=%d", currentWeather->temperature, currentWeather->humidity, currentWeather->pressure);                
+    ESP8266_SendRequest("TCP", "192.168.1.102", 80, buff);  
+    
+    ESP8266_DisconnectFromWifi();
     PC_Send("[ OK ] Done\n");
     
     while (1)
