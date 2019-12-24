@@ -7,8 +7,6 @@
 #include "BME280.h"
 #include "ESP8266.h"
 
-
-
 //For BME280
 I2C_HandleTypeDef hi2c1;
 
@@ -45,6 +43,8 @@ int main(void)
     BME280_Init();
     BME280_WeatherData *currentWeather = NULL;
     
+    ESP8266_Init(&huart2, GPIOB, GPIO_PIN_11);
+    ESP8266_ON();
     ESP8266_ConnectTo("MERCUSYS_7EBA", "3105vlad3010vlada");
     
     currentWeather = BME280_GetWeatherData();
@@ -53,6 +53,11 @@ int main(void)
     
     ESP8266_DisconnectFromWifi();
     PC_Send("[ OK ] Done\n");
+    
+    ESP8266_OFF();
+    
+    // __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
+    //HAL_PWR_EnterSTANDBYMode();
     
     while (1)
     {
@@ -96,7 +101,11 @@ void SystemClock_Config(void)
   }
 }
 
-
+/**
+  * @brief I2C1 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_I2C1_Init(void)
 {
 
@@ -126,7 +135,11 @@ static void MX_I2C1_Init(void)
 
 }
 
-
+/**
+  * @brief USART1 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_USART1_UART_Init(void)
 {
 
@@ -155,7 +168,11 @@ static void MX_USART1_UART_Init(void)
 
 }
 
-
+/**
+  * @brief USART2 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_USART2_UART_Init(void)
 {
 
@@ -184,7 +201,11 @@ static void MX_USART2_UART_Init(void)
 
 }
 
-
+/**
+  * @brief GPIO Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -197,6 +218,9 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_11, GPIO_PIN_RESET);
+
   /*Configure GPIO pin : PC13 */
   GPIO_InitStruct.Pin = GPIO_PIN_13;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -204,9 +228,23 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : PB11 */
+  GPIO_InitStruct.Pin = GPIO_PIN_11;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
 }
 
+/* USER CODE BEGIN 4 */
 
+/* USER CODE END 4 */
+
+/**
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -215,5 +253,21 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
+#ifdef  USE_FULL_ASSERT
+/**
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
+void assert_failed(uint8_t *file, uint32_t line)
+{ 
+  /* USER CODE BEGIN 6 */
+  /* User can add his own implementation to report the file name and line number,
+     tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  /* USER CODE END 6 */
+}
+#endif /* USE_FULL_ASSERT */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

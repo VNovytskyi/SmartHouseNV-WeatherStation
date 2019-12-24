@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=C:/Users/vladyslavN/Documents/STM32_Projects/WeatherStationF103C8/Inc
+HeaderPath=C:/Users/vladyslavN/Documents/Projects/KievWeather/WeatherStationF103C8/Inc
 HeaderFiles=stm32f1xx_it.h;stm32f1xx_hal_conf.h;main.h;
-SourcePath=C:/Users/vladyslavN/Documents/STM32_Projects/WeatherStationF103C8/Src
+SourcePath=C:/Users/vladyslavN/Documents/Projects/KievWeather/WeatherStationF103C8/Src
 SourceFiles=stm32f1xx_it.c;stm32f1xx_hal_msp.c;main.c;
 
 [PreviousLibFiles]
