@@ -37,28 +37,28 @@ int main(void)
 	    PC_Send("[ OK ] Start\n");
 
 	    BME280_Init();
-	    BME280_WeatherData *currentWeather = NULL;
-
 	    ESP8266_Init(&huart2, GPIOB, GPIO_PIN_11);
-	    ESP8266_ON();
-	    ESP8266_ConnectTo("MERCUSYS_7EBA", "3105vlad3010vlada");
 
-	    currentWeather = BME280_GetWeatherData();
-	    sprintf(buff, "GET /weatherStation/addWeather.php?t=%d&h=%d&p=%d", currentWeather->temperature, currentWeather->humidity, currentWeather->pressure);
-	    ESP8266_SendRequest("TCP", "192.168.1.102", 80, buff);
-
-	    ESP8266_DisconnectFromWifi();
-	    PC_Send("[ OK ] Done\n");
-
-	    ESP8266_OFF();
-
-	    // __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
-	    //HAL_PWR_EnterSTANDBYMode();
+	    BME280_WeatherData *currentWeather = NULL;
 
 	    while (1)
 	    {
-	    	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-	    	HAL_Delay(1000);
+	    	PC_Send("Begin\n");
+
+	    	ESP8266_ON();
+	    	ESP8266_ConnectTo("MERCUSYS_7EBA", "3105vlad3010vlada");
+
+	    	currentWeather = BME280_GetWeatherData();
+	    	sprintf(buff, "GET /weatherStation/addWeather.php?t=%d&h=%d&p=%d", currentWeather->temperature, currentWeather->humidity, currentWeather->pressure);
+	    	ESP8266_SendRequest("TCP", "192.168.1.102", 80, buff);
+
+	    	ESP8266_DisconnectFromWifi();
+
+	    	ESP8266_OFF();
+
+	    	PC_Send("End\n");
+
+	    	HAL_Delay(2 * 1000);
 	    }
 }
 
