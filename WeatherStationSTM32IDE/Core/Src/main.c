@@ -38,8 +38,6 @@ int main(void)
     MX_USART2_UART_Init();
     MX_USART1_UART_Init();
 
-    PC_Send("[ OK ] Start\n");
-
     BME280_Init();
     ESP8266_Init(&huart2, GPIOB, GPIO_PIN_11);
 
@@ -60,9 +58,6 @@ int main(void)
 																				   (int)currentWeather->pressure,
 																				   currentBatteryVoltage);
     	ESP8266_SendRequest("TCP", "192.168.1.102", 80, buff);
-
-    	PC_Send(buff);
-    	PC_Send("\n");
 
 	    ESP8266_DisconnectFromWifi();
 	   	ESP8266_OFF();
