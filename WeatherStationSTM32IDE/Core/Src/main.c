@@ -21,9 +21,10 @@ static void MX_USART2_UART_Init(void);
 
 char buff[128];
 bool requestStatus;
-uint32_t adcResult;
+float currentBatteryVoltage;
 
 void PC_Send(char *str);
+float getBatteryVoltage();
 
 int main(void)
 {
@@ -44,15 +45,6 @@ int main(void)
 
     BME280_WeatherData *currentWeather = NULL;
 
-    HAL_ADC_Start(&hadc1);
-    HAL_ADC_PollForConversion(&hadc1, 100);
-    adcResult = HAL_ADC_GetValue(&hadc1);
-    HAL_ADC_Stop(&hadc1);
-
-    //PA0
-    sprintf(buff, "adcResult = %d", adcResult);
-    PC_Send(buff);
-
     while (1)
     {
     	PC_Send("Begin\n");
@@ -61,8 +53,16 @@ int main(void)
     	ESP8266_ConnectTo("MERCUSYS_7EBA", "3105vlad3010vlada");
 
     	currentWeather = BME280_GetWeatherData();
-    	sprintf(buff, "GET /weatherStation/addWeather.php?t=%d&h=%d&p=%d", currentWeather->temperature, currentWeather->humidity, currentWeather->pressure);
+    	currentBatteryVoltage = getBatteryVoltage();
+
+    	sprintf(buff, "GET /weatherStation/addWeather.php?t=%d&h=%d&p=%d&v=%2.2f", (int)currentWeather->temperature,
+    																			   (int)currentWeather->humidity,
+																				   (int)currentWeather->pressure,
+																				   currentBatteryVoltage);
     	ESP8266_SendRequest("TCP", "192.168.1.102", 80, buff);
+
+    	PC_Send(buff);
+    	PC_Send("\n");
 
 	    ESP8266_DisconnectFromWifi();
 	   	ESP8266_OFF();
@@ -76,6 +76,18 @@ int main(void)
 void PC_Send(char *str)
 {
 	HAL_UART_Transmit(&huart1,(uint8_t*)str,strlen(str),1000);
+}
+
+float getBatteryVoltage()
+{
+	HAL_ADC_Start(&hadc1);
+	HAL_ADC_PollForConversion(&hadc1, 100);
+	uint32_t adcResult = HAL_ADC_GetValue(&hadc1);
+	HAL_ADC_Stop(&hadc1);
+
+	float realVoltage = adcResult / 1085.0 /0.48;
+
+	return realVoltage;
 }
 
 

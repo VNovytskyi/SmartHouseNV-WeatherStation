@@ -44,7 +44,7 @@ all: WeatherStationSTM32IDE.elf secondary-outputs
 
 # Tool invocations
 WeatherStationSTM32IDE.elf: $(OBJS) $(USER_OBJS) C:\Users\vladyslavN\Documents\Projects\KievWeather\WeatherStationSTM32IDE\STM32F103C8TX_FLASH.ld
-	arm-none-eabi-gcc -o "WeatherStationSTM32IDE.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\vladyslavN\Documents\Projects\KievWeather\WeatherStationSTM32IDE\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="WeatherStationSTM32IDE.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+	arm-none-eabi-gcc -o "WeatherStationSTM32IDE.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\vladyslavN\Documents\Projects\KievWeather\WeatherStationSTM32IDE\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="WeatherStationSTM32IDE.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
