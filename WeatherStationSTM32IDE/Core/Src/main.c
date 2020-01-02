@@ -25,6 +25,8 @@ bool request, connect, disconnect, echo;
 float currentBatteryVoltage;
 BME280_WeatherData *currentWeather = NULL;
 
+int counter = 0;
+
 void PC_Send(char *str);
 float getBatteryVoltage();
 
@@ -56,7 +58,8 @@ int main(void)
 
     	for(int i = 0; i < 3; ++i)
     	{
-    		connect = ESP8266_ConnectToAnyAccessPointFromDefaultList();
+    		//connect = ESP8266_ConnectToAnyAccessPointFromDefaultList();
+    		connect = ESP8266_ConnectTo("Snapy", "31055243167vlad");
 
     		if(connect)
     			break;
@@ -66,7 +69,7 @@ int main(void)
     	if(!connect)
     	{
     		PC_Send("[ ERROR ] connect = false;");
-    		Error_Handler();
+    		NVIC_SystemReset();
     	}
 
     	currentWeather = BME280_GetWeatherData();
@@ -78,7 +81,7 @@ int main(void)
     	if(!request)
     	{
     		PC_Send("[ ERROR ] request = false;");
-    		Error_Handler();
+    		NVIC_SystemReset();
     	}
 
     	disconnect = ESP8266_DisconnectFromWifi();
@@ -86,12 +89,15 @@ int main(void)
     	if(!disconnect)
     	{
     	    PC_Send("[ ERROR ] disconnect = false;");
-    	    Error_Handler();
+    	    NVIC_SystemReset();
     	}
 
 	   	ESP8266_OFF();
 
-	   	HAL_Delay(5 * 1000);
+	   	sprintf(buff, "%d\n", ++counter);
+	   	PC_Send(buff);
+
+	   	HAL_Delay(20 * 1000);
     }
 }
 
