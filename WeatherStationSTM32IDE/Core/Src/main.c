@@ -21,7 +21,7 @@ static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 
 char buff[128];
-bool request, connect, disconnect;
+bool request, connect, disconnect, echo;
 float currentBatteryVoltage;
 BME280_WeatherData *currentWeather = NULL;
 
@@ -42,11 +42,32 @@ int main(void)
 
     BME280_Init();
     ESP8266_Init(&huart2, GPIOB, GPIO_PIN_11);
+    ESP8266_ON();
+
+    echo = ESP8266_DisableEcho();
 
     while (1)
     {
+    	request = false;
+    	connect = false;
+    	disconnect = false;
+
     	ESP8266_ON();
-    	connect = ESP8266_ConnectToAnyAccessPointFromDefaultList();
+
+    	for(int i = 0; i < 3; ++i)
+    	{
+    		connect = ESP8266_ConnectToAnyAccessPointFromDefaultList();
+
+    		if(connect)
+    			break;
+    	}
+
+
+    	if(!connect)
+    	{
+    		PC_Send("[ ERROR ] connect = false;");
+    		Error_Handler();
+    	}
 
     	currentWeather = BME280_GetWeatherData();
     	currentBatteryVoltage = getBatteryVoltage();
@@ -54,7 +75,20 @@ int main(void)
     	sprintf(buff, "GET /weatherStation/addWeather.php?t=%d&h=%d&p=%d&v=%2.2f", (int)currentWeather->temperature, (int)currentWeather->humidity, (int)currentWeather->pressure, currentBatteryVoltage);
     	request = ESP8266_SendRequest("TCP", "192.168.1.102", 80, buff);
 
+    	if(!request)
+    	{
+    		PC_Send("[ ERROR ] request = false;");
+    		Error_Handler();
+    	}
+
     	disconnect = ESP8266_DisconnectFromWifi();
+
+    	if(!disconnect)
+    	{
+    	    PC_Send("[ ERROR ] disconnect = false;");
+    	    Error_Handler();
+    	}
+
 	   	ESP8266_OFF();
 
 	   	HAL_Delay(5 * 1000);
@@ -311,10 +345,11 @@ static void MX_GPIO_Init(void)
   */
 void Error_Handler(void)
 {
-  /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-
-  /* USER CODE END Error_Handler_Debug */
+	while(1)
+	{
+		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+		HAL_Delay(100);
+	}
 }
 
 #ifdef  USE_FULL_ASSERT
