@@ -1,4 +1,5 @@
 #include "main.h"
+
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -20,8 +21,9 @@ static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 
 char buff[128];
-bool requestStatus;
+bool request, connect, disconnect;
 float currentBatteryVoltage;
+BME280_WeatherData *currentWeather = NULL;
 
 void PC_Send(char *str);
 float getBatteryVoltage();
@@ -41,30 +43,21 @@ int main(void)
     BME280_Init();
     ESP8266_Init(&huart2, GPIOB, GPIO_PIN_11);
 
-    BME280_WeatherData *currentWeather = NULL;
-
     while (1)
     {
-    	PC_Send("Begin\n");
-
     	ESP8266_ON();
-    	ESP8266_ConnectTo("MERCUSYS_7EBA", "3105vlad3010vlada");
+    	connect = ESP8266_ConnectToAnyAccessPointFromDefaultList();
 
     	currentWeather = BME280_GetWeatherData();
     	currentBatteryVoltage = getBatteryVoltage();
 
-    	sprintf(buff, "GET /weatherStation/addWeather.php?t=%d&h=%d&p=%d&v=%2.2f", (int)currentWeather->temperature,
-    																			   (int)currentWeather->humidity,
-																				   (int)currentWeather->pressure,
-																				   currentBatteryVoltage);
-    	ESP8266_SendRequest("TCP", "192.168.1.102", 80, buff);
+    	sprintf(buff, "GET /weatherStation/addWeather.php?t=%d&h=%d&p=%d&v=%2.2f", (int)currentWeather->temperature, (int)currentWeather->humidity, (int)currentWeather->pressure, currentBatteryVoltage);
+    	request = ESP8266_SendRequest("TCP", "192.168.1.102", 80, buff);
 
-	    ESP8266_DisconnectFromWifi();
+    	disconnect = ESP8266_DisconnectFromWifi();
 	   	ESP8266_OFF();
 
-	   	PC_Send("End\n");
-
-	   	HAL_Delay(2 * 1000);
+	   	HAL_Delay(5 * 1000);
     }
 }
 
