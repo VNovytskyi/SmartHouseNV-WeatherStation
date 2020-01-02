@@ -58,6 +58,16 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define Battery_voltage1_Pin GPIO_PIN_0
+#define Battery_voltage1_GPIO_Port GPIOA
+#define ESP_RX_Pin GPIO_PIN_2
+#define ESP_RX_GPIO_Port GPIOA
+#define ESP_TX_Pin GPIO_PIN_3
+#define ESP_TX_GPIO_Port GPIOA
+#define BME280_SCL_Pin GPIO_PIN_6
+#define BME280_SCL_GPIO_Port GPIOB
+#define BME280_SDA_Pin GPIO_PIN_7
+#define BME280_SDA_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

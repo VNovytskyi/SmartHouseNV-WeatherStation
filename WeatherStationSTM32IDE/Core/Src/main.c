@@ -1,5 +1,28 @@
+/* USER CODE BEGIN Header */
+/**
+  ******************************************************************************
+  * @file           : main.c
+  * @brief          : Main program body
+  ******************************************************************************
+  * @attention
+  *
+  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
+  * All rights reserved.</center></h2>
+  *
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
+  *
+  ******************************************************************************
+  */
+/* USER CODE END Header */
+
+/* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -7,100 +30,45 @@
 
 #include "BME280.h"
 #include "ESP8266.h"
+/* USER CODE END Includes */
 
+/* Private typedef -----------------------------------------------------------*/
+/* USER CODE BEGIN PTD */
+
+/* USER CODE END PTD */
+
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN PD */
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PM */
+
+/* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+
 I2C_HandleTypeDef hi2c1;
+
+RTC_HandleTypeDef hrtc;
+
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 
+/* USER CODE BEGIN PV */
+
+/* USER CODE END PV */
+
+/* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
-
-char buff[128];
-bool request, connect, disconnect, echo;
-float currentBatteryVoltage;
-BME280_WeatherData *currentWeather = NULL;
-
-int counter = 0;
-
-void PC_Send(char *str);
-float getBatteryVoltage();
-
-int main(void)
-{
-	HAL_Init();
-
-	SystemClock_Config();
-
-	MX_GPIO_Init();
-    MX_I2C1_Init();
-    MX_ADC1_Init();
-    MX_USART2_UART_Init();
-    MX_USART1_UART_Init();
-
-    BME280_Init();
-    ESP8266_Init(&huart2, GPIOB, GPIO_PIN_11);
-    ESP8266_ON();
-
-    echo = ESP8266_DisableEcho();
-
-    while (1)
-    {
-    	request = false;
-    	connect = false;
-    	disconnect = false;
-
-    	ESP8266_ON();
-
-    	for(int i = 0; i < 3; ++i)
-    	{
-    		//connect = ESP8266_ConnectToAnyAccessPointFromDefaultList();
-    		connect = ESP8266_ConnectTo("Snapy", "31055243167vlad");
-
-    		if(connect)
-    			break;
-    	}
-
-
-    	if(!connect)
-    	{
-    		PC_Send("[ ERROR ] connect = false;");
-    		NVIC_SystemReset();
-    	}
-
-    	currentWeather = BME280_GetWeatherData();
-    	currentBatteryVoltage = getBatteryVoltage();
-
-    	sprintf(buff, "GET /weatherStation/addWeather.php?t=%d&h=%d&p=%d&v=%2.2f", (int)currentWeather->temperature, (int)currentWeather->humidity, (int)currentWeather->pressure, currentBatteryVoltage);
-    	request = ESP8266_SendRequest("TCP", "192.168.1.102", 80, buff);
-
-    	if(!request)
-    	{
-    		PC_Send("[ ERROR ] request = false;");
-    		NVIC_SystemReset();
-    	}
-
-    	disconnect = ESP8266_DisconnectFromWifi();
-
-    	if(!disconnect)
-    	{
-    	    PC_Send("[ ERROR ] disconnect = false;");
-    	    NVIC_SystemReset();
-    	}
-
-	   	ESP8266_OFF();
-
-	   	sprintf(buff, "%d\n", ++counter);
-	   	PC_Send(buff);
-
-	   	HAL_Delay(20 * 1000);
-    }
-}
-
+static void MX_RTC_Init(void);
+/* USER CODE BEGIN PFP */
 void PC_Send(char *str)
 {
 	HAL_UART_Transmit(&huart1,(uint8_t*)str,strlen(str),1000);
@@ -117,7 +85,123 @@ float getBatteryVoltage()
 
 	return realVoltage;
 }
+/* USER CODE END PFP */
 
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
+RTC_TimeTypeDef sTime = {0};
+RTC_DateTypeDef DateToUpdate = {0};
+char buff[128];
+float currentBatteryVoltage;
+int counter = 0;
+bool request, connect, disconnect, echo;
+BME280_WeatherData *currentWeather = NULL;
+/* USER CODE END 0 */
+
+/**
+  * @brief  The application entry point.
+  * @retval int
+  */
+int main(void)
+{
+  /* USER CODE BEGIN 1 */
+
+  /* USER CODE END 1 */
+  
+
+  /* MCU Configuration--------------------------------------------------------*/
+
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  HAL_Init();
+
+  /* USER CODE BEGIN Init */
+
+  /* USER CODE END Init */
+
+  /* Configure the system clock */
+  SystemClock_Config();
+
+  /* USER CODE BEGIN SysInit */
+
+  /* USER CODE END SysInit */
+
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_ADC1_Init();
+  MX_I2C1_Init();
+  MX_USART1_UART_Init();
+  MX_USART2_UART_Init();
+  MX_RTC_Init();
+  /* USER CODE BEGIN 2 */
+
+  BME280_Init();
+  ESP8266_Init(&huart2, GPIOB, GPIO_PIN_11);
+  ESP8266_ON();
+
+
+  echo = ESP8266_DisableEcho();
+
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+	  request = false;
+	  connect = false;
+	  disconnect = false;
+
+	  ESP8266_ON();
+
+	  for(int i = 0; i < 3; ++i)
+	  {
+	      //connect = ESP8266_ConnectToAnyAccessPointFromDefaultList();
+	      connect = ESP8266_ConnectTo("Snapy", "31055243167vlad");
+
+	      if(connect)
+	      	break;
+	  }
+
+	  if(!connect)
+	  {
+		  PC_Send("[ ERROR ] connect = false;");
+	      NVIC_SystemReset();
+	  }
+
+	  currentWeather = BME280_GetWeatherData();
+	  currentBatteryVoltage = getBatteryVoltage();
+
+	  sprintf(buff, "GET /weatherStation/addWeather.php?t=%d&h=%d&p=%d&v=%2.2f", (int)currentWeather->temperature, (int)currentWeather->humidity, (int)currentWeather->pressure, currentBatteryVoltage);
+	  request = ESP8266_SendRequest("TCP", "192.168.1.102", 80, buff);
+
+	  if(!request)
+	  {
+		  PC_Send("[ ERROR ] request = false;");
+	      NVIC_SystemReset();
+	  }
+
+	  disconnect = ESP8266_DisconnectFromWifi();
+
+	  if(!disconnect)
+	  {
+		  PC_Send("[ ERROR ] disconnect = false;");
+	      NVIC_SystemReset();
+	  }
+
+	  ESP8266_OFF();
+
+	  HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+
+	  sprintf(buff, "[%d-%d-%d %d:%d:%d] %d\n",DateToUpdate.Date, DateToUpdate.Month, DateToUpdate.Year, sTime.Hours, sTime.Minutes, sTime.Seconds, ++counter);
+	  PC_Send(buff);
+
+	  HAL_Delay(20 * 1000);
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+  }
+  /* USER CODE END 3 */
+}
 
 /**
   * @brief System Clock Configuration
@@ -131,9 +215,10 @@ void SystemClock_Config(void)
 
   /** Initializes the CPU, AHB and APB busses clocks 
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -152,7 +237,8 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_ADC;
+  PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
   PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV2;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
@@ -240,6 +326,62 @@ static void MX_I2C1_Init(void)
 }
 
 /**
+  * @brief RTC Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_RTC_Init(void)
+{
+
+  /* USER CODE BEGIN RTC_Init 0 */
+
+  /* USER CODE END RTC_Init 0 */
+
+
+
+  /* USER CODE BEGIN RTC_Init 1 */
+
+  /* USER CODE END RTC_Init 1 */
+  /** Initialize RTC Only 
+  */
+  hrtc.Instance = RTC;
+  hrtc.Init.AsynchPrediv = RTC_AUTO_1_SECOND;
+  hrtc.Init.OutPut = RTC_OUTPUTSOURCE_ALARM;
+  if (HAL_RTC_Init(&hrtc) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /* USER CODE BEGIN Check_RTC_BKUP */
+    
+  /* USER CODE END Check_RTC_BKUP */
+
+  /** Initialize RTC and set the Time and Date 
+  */
+  sTime.Hours = 0;
+  sTime.Minutes = 0;
+  sTime.Seconds = 0;
+
+  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  DateToUpdate.WeekDay = RTC_WEEKDAY_FRIDAY;
+  DateToUpdate.Month = RTC_MONTH_JANUARY;
+  DateToUpdate.Date = 3;
+  DateToUpdate.Year = 20;
+
+  if (HAL_RTC_SetDate(&hrtc, &DateToUpdate, RTC_FORMAT_BIN) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN RTC_Init 2 */
+
+  /* USER CODE END RTC_Init 2 */
+
+}
+
+/**
   * @brief USART1 Initialization Function
   * @param None
   * @retval None
@@ -316,6 +458,7 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
@@ -332,12 +475,40 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : PD0 PD1 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PA1 PA4 PA5 PA6 
+                           PA7 PA8 PA11 PA12 
+                           PA15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6 
+                          |GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_11|GPIO_PIN_12 
+                          |GPIO_PIN_15;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PB0 PB1 PB2 PB10 
+                           PB12 PB13 PB14 PB15 
+                           PB3 PB4 PB5 PB8 
+                           PB9 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_10 
+                          |GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15 
+                          |GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_8 
+                          |GPIO_PIN_9;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
   /*Configure GPIO pin : PB11 */
   GPIO_InitStruct.Pin = GPIO_PIN_11;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure peripheral I/O remapping */
+  __HAL_AFIO_REMAP_PD01_ENABLE();
 
 }
 
@@ -351,11 +522,10 @@ static void MX_GPIO_Init(void)
   */
 void Error_Handler(void)
 {
-	while(1)
-	{
-		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-		HAL_Delay(100);
-	}
+  /* USER CODE BEGIN Error_Handler_Debug */
+  /* User can add his own implementation to report the HAL error return state */
+
+  /* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef  USE_FULL_ASSERT
