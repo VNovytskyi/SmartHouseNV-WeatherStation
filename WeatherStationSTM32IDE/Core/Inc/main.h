@@ -64,6 +64,12 @@ void Error_Handler(void);
 #define ESP_RX_GPIO_Port GPIOA
 #define ESP_TX_Pin GPIO_PIN_3
 #define ESP_TX_GPIO_Port GPIOA
+#define Station_error_Pin GPIO_PIN_5
+#define Station_error_GPIO_Port GPIOA
+#define Station_work_Pin GPIO_PIN_0
+#define Station_work_GPIO_Port GPIOB
+#define Station_sleep_Pin GPIO_PIN_1
+#define Station_sleep_GPIO_Port GPIOB
 #define BME280_SCL_Pin GPIO_PIN_6
 #define BME280_SCL_GPIO_Port GPIOB
 #define BME280_SDA_Pin GPIO_PIN_7

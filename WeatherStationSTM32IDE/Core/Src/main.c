@@ -85,6 +85,7 @@ float getBatteryVoltage()
 
 	return realVoltage;
 }
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -94,7 +95,7 @@ RTC_DateTypeDef DateToUpdate = {0};
 char buff[128];
 float currentBatteryVoltage;
 int counter = 0;
-bool request, connect, disconnect, echo;
+bool request, connect, disconnect, echo, restart, test;
 BME280_WeatherData *currentWeather = NULL;
 /* USER CODE END 0 */
 
@@ -134,11 +135,26 @@ int main(void)
   MX_RTC_Init();
   /* USER CODE BEGIN 2 */
 
-  PC_Send("Start\n");
+  PC_Send("****************************** Start ******************************\n");
+
+  for(int i = 0; i < 5; ++i)
+  {
+	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+
+	  HAL_Delay(100);
+
+	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
+	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
+	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+
+	  HAL_Delay(100);
+  }
+
 
   BME280_Init();
-  ESP8266_Init(&huart2, GPIOB, GPIO_PIN_11);
-  ESP8266_ON();
+  ESP8266_Init(&huart2, GPIOB, GPIO_PIN_10);
 
   /* USER CODE END 2 */
 
@@ -146,33 +162,47 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  PC_Send("\nBegin\n");
+
+	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
+	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+
 	  request = false;
 	  connect = false;
 	  disconnect = false;
 
 	  for(int i = 0; i < 3; ++i)
 	  {
-		  //ESP8266_ON();
-		  HAL_Delay(1000);
+		  ESP8266_ON();
+		  HAL_Delay(2000);
 
 		  connect = ESP8266_ConnectTo("Snapy", "31055243167vlad");
 
 	      if(connect)
-	      	break;
+	      {
+	    	  PC_Send("[ OK ] Connect to access point\n");
+	    	  break;
+	      }
 
-	      //ESP8266_OFF();
-	      HAL_Delay(100);
+	      PC_Send("[ WARNING ] Connect to access point failed! ESP Restart\n");
+	      restart = ESP8266_Test();
+
+	      if(restart)
+	      	  PC_Send("[ OK ] ESP Restart\n");
+	      else
+	          PC_Send("[ ERROR ] ESP Restart\n");
 	  }
 
 	  if(!connect)
 	  {
-		  PC_Send("[ ERROR ] connect = false;\n");
+		  PC_Send("[ ERROR ] Connect to access point\n");
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+		  HAL_Delay(1000);
+		  PC_Send("**************** System restart ****************\n");
 	      NVIC_SystemReset();
 	  }
-	  else
-	  {
-		  PC_Send("[ OK ] connect = true;\n");
-	  }
+
 
 	  currentWeather = BME280_GetWeatherData();
 	  currentBatteryVoltage = getBatteryVoltage();
@@ -183,11 +213,14 @@ int main(void)
 	  if(!request)
 	  {
 		  PC_Send("[ ERROR ] request = false;\n");
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+		  HAL_Delay(1000);
+		  PC_Send("**************** System restart ****************\n");
 	      NVIC_SystemReset();
 	  }
 	  else
 	  {
-		  PC_Send("[ OK ] request = true;\n");
+		  PC_Send("[ OK ] Request\n");
 	  }
 
 	  disconnect = ESP8266_DisconnectFromWifi();
@@ -195,14 +228,17 @@ int main(void)
 	  if(!disconnect)
 	  {
 		  PC_Send("[ ERROR ] disconnect = false;\n");
+		  PC_Send("**************** System restart ****************\n");
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
+		  HAL_Delay(1000);
 	      NVIC_SystemReset();
 	  }
 	  else
 	  {
-		  PC_Send("[ OK ] disconnect = true;\n");
+		  PC_Send("[ OK ] Disconnect\n");
 	  }
-
-	  //ESP8266_OFF();
 
 	  HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
 
@@ -210,14 +246,20 @@ int main(void)
 	  sprintf(buff, "[%d-%d-%d %d:%d:%d] %d\n",DateToUpdate.Date, DateToUpdate.Month, DateToUpdate.Year, sTime.Hours, sTime.Minutes, sTime.Seconds, counter);
 	  PC_Send(buff);
 
+	  ESP8266_OFF();
+	  PC_Send("End\n");
+
+	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
+	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+
 	  HAL_Delay(10000);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  PC_Send("End while\n");
   }
   /* USER CODE END 3 */
-  PC_Send("End main\n");
 }
 
 /**
@@ -354,8 +396,8 @@ static void MX_RTC_Init(void)
 
   /* USER CODE END RTC_Init 0 */
 
-  //RTC_TimeTypeDef sTime = {0};
-  //RTC_DateTypeDef DateToUpdate = {0};
+  RTC_TimeTypeDef sTime = {0};
+  RTC_DateTypeDef DateToUpdate = {0};
 
   /* USER CODE BEGIN RTC_Init 1 */
 
@@ -484,7 +526,10 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_11, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(Station_error_GPIO_Port, Station_error_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, Station_work_Pin|Station_sleep_Pin|GPIO_PIN_10, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : PC13 */
   GPIO_InitStruct.Pin = GPIO_PIN_13;
@@ -498,31 +543,34 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PA1 PA4 PA5 PA6 
-                           PA7 PA8 PA11 PA12 
-                           PA15 */
-  GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6 
-                          |GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_11|GPIO_PIN_12 
-                          |GPIO_PIN_15;
+  /*Configure GPIO pins : PA1 PA4 PA6 PA7 
+                           PA8 PA11 PA12 PA15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_6|GPIO_PIN_7 
+                          |GPIO_PIN_8|GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_15;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PB0 PB1 PB2 PB10 
-                           PB12 PB13 PB14 PB15 
-                           PB3 PB4 PB5 PB8 
-                           PB9 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_10 
-                          |GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15 
-                          |GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_8 
-                          |GPIO_PIN_9;
-  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PB11 */
-  GPIO_InitStruct.Pin = GPIO_PIN_11;
+  /*Configure GPIO pin : Station_error_Pin */
+  GPIO_InitStruct.Pin = Station_error_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(Station_error_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : Station_work_Pin Station_sleep_Pin PB10 */
+  GPIO_InitStruct.Pin = Station_work_Pin|Station_sleep_Pin|GPIO_PIN_10;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PB2 PB11 PB12 PB13 
+                           PB14 PB15 PB3 PB4 
+                           PB5 PB8 PB9 */
+  GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13 
+                          |GPIO_PIN_14|GPIO_PIN_15|GPIO_PIN_3|GPIO_PIN_4 
+                          |GPIO_PIN_5|GPIO_PIN_8|GPIO_PIN_9;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure peripheral I/O remapping */
