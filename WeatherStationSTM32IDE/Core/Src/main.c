@@ -134,12 +134,11 @@ int main(void)
   MX_RTC_Init();
   /* USER CODE BEGIN 2 */
 
+  PC_Send("Start\n");
+
   BME280_Init();
   ESP8266_Init(&huart2, GPIOB, GPIO_PIN_11);
   ESP8266_ON();
-
-
-  echo = ESP8266_DisableEcho();
 
   /* USER CODE END 2 */
 
@@ -151,21 +150,28 @@ int main(void)
 	  connect = false;
 	  disconnect = false;
 
-	  ESP8266_ON();
-
 	  for(int i = 0; i < 3; ++i)
 	  {
-	      //connect = ESP8266_ConnectToAnyAccessPointFromDefaultList();
-	      connect = ESP8266_ConnectTo("Snapy", "31055243167vlad");
+		  ESP8266_ON();
+		  HAL_Delay(1000);
+
+		  connect = ESP8266_ConnectTo("Snapy", "31055243167vlad");
 
 	      if(connect)
 	      	break;
+
+	      ESP8266_OFF();
+	      HAL_Delay(100);
 	  }
 
 	  if(!connect)
 	  {
-		  PC_Send("[ ERROR ] connect = false;");
+		  PC_Send("[ ERROR ] connect = false;\n");
 	      NVIC_SystemReset();
+	  }
+	  else
+	  {
+		  PC_Send("[ OK ] connect = true;\n");
 	  }
 
 	  currentWeather = BME280_GetWeatherData();
@@ -176,16 +182,24 @@ int main(void)
 
 	  if(!request)
 	  {
-		  PC_Send("[ ERROR ] request = false;");
+		  PC_Send("[ ERROR ] request = false;\n");
 	      NVIC_SystemReset();
+	  }
+	  else
+	  {
+		  PC_Send("[ OK ] request = true;\n");
 	  }
 
 	  disconnect = ESP8266_DisconnectFromWifi();
 
 	  if(!disconnect)
 	  {
-		  PC_Send("[ ERROR ] disconnect = false;");
+		  PC_Send("[ ERROR ] disconnect = false;\n");
 	      NVIC_SystemReset();
+	  }
+	  else
+	  {
+		  PC_Send("[ OK ] disconnect = true;\n");
 	  }
 
 	  ESP8266_OFF();
@@ -337,7 +351,8 @@ static void MX_RTC_Init(void)
 
   /* USER CODE END RTC_Init 0 */
 
-
+  //RTC_TimeTypeDef sTime = {0};
+  //RTC_DateTypeDef DateToUpdate = {0};
 
   /* USER CODE BEGIN RTC_Init 1 */
 
