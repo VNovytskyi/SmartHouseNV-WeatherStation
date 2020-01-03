@@ -152,7 +152,7 @@ int main(void)
 
 	  for(int i = 0; i < 3; ++i)
 	  {
-		  ESP8266_ON();
+		  //ESP8266_ON();
 		  HAL_Delay(1000);
 
 		  connect = ESP8266_ConnectTo("Snapy", "31055243167vlad");
@@ -160,7 +160,7 @@ int main(void)
 	      if(connect)
 	      	break;
 
-	      ESP8266_OFF();
+	      //ESP8266_OFF();
 	      HAL_Delay(100);
 	  }
 
@@ -202,19 +202,22 @@ int main(void)
 		  PC_Send("[ OK ] disconnect = true;\n");
 	  }
 
-	  ESP8266_OFF();
+	  //ESP8266_OFF();
 
 	  HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
 
-	  sprintf(buff, "[%d-%d-%d %d:%d:%d] %d\n",DateToUpdate.Date, DateToUpdate.Month, DateToUpdate.Year, sTime.Hours, sTime.Minutes, sTime.Seconds, ++counter);
+	  ++counter;
+	  sprintf(buff, "[%d-%d-%d %d:%d:%d] %d\n",DateToUpdate.Date, DateToUpdate.Month, DateToUpdate.Year, sTime.Hours, sTime.Minutes, sTime.Seconds, counter);
 	  PC_Send(buff);
 
-	  HAL_Delay(20 * 1000);
+	  HAL_Delay(10000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  PC_Send("End while\n");
   }
   /* USER CODE END 3 */
+  PC_Send("End main\n");
 }
 
 /**
