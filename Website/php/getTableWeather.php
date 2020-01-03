@@ -44,6 +44,7 @@
             <td>Temperature</td>
             <td>Humidity</td>
             <td>Pressure</td>
+            <td>batteryVoltage</td>
             
             
         </tr>
@@ -59,10 +60,8 @@
             if ($conn->connect_error) {
                 die("Connection failed: " . $conn->connect_error);
             }
-            
-            //echo "Connected successfully";
 
-            $sql = "SELECT * FROM `weatherData` WHERE 1";
+            $sql = "SELECT * FROM `weatherData` WHERE 1 ORDER BY `idWeatherData` DESC LIMIT 10";
             $result = $conn->query($sql);
 
             if ($result->num_rows > 0) {
@@ -73,7 +72,7 @@
                     echo    "<td>" . $row["temperature"] . " &degC</td>";
                     echo    "<td>" . $row["humidity"] . "   %</td>";
                     echo    "<td>" . $row["pressure"] . "</td>";
-                    
+                    echo    "<td>" . $row["batteryVoltage"] . " V</td>";
                     /*
                     echo    "<td>" . $row["boolRain"] . "</td>";
                     echo    "<td>" . $row["probabilityRain"] . "</td>";

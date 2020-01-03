@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <h2 id="dateTime"></h2>
+    <h2 id="temperature"></h2>
+    <h2 id="humidity"></h2>
+    <h2 id="pressure"></h2>
+    <h2 id="batteryVoltage"></h2>
+</body>
+</html>
+
+<script>
+    var counter = 0;
+
+    setInterval(function() {
+        var xhr = new XMLHttpRequest(); 
+        xhr.open('GET', 'http://localhost/weatherStation/getLastWeatherJson.php', false);
+        xhr.send();
+
+        if (xhr.status != 200) 
+        {
+            alert( xhr.status + ': ' + xhr.statusText ); // пример вывода: 404: Not Found
+        } 
+        else 
+        {
+            var obj = JSON.parse(xhr.responseText);
+            document.getElementById("dateTime").innerHTML = "dateTime: " + obj.dateTime;
+            document.getElementById("temperature").innerHTML = "temperature: " + obj.temperature;
+            document.getElementById("humidity").innerHTML = "humidity: " + obj.humidity;
+            document.getElementById("pressure").innerHTML = "pressure: " + obj.pressure;
+            document.getElementById("batteryVoltage").innerHTML = "batteryVoltage: " + obj.batteryVoltage;
+
+            console.log(++counter);   
+        }
+    }, 1000);
+</script>
