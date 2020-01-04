@@ -34,7 +34,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+//#define DEBUG_LEDS
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -137,21 +137,22 @@ int main(void)
 
   PC_Send("****************************** Start ******************************\n");
 
-  for(int i = 0; i < 5; ++i)
-  {
-	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
-	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+  #ifdef DEBUG_LEDS
+	  for(int i = 0; i < 5; ++i)
+	  {
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
 
-	  HAL_Delay(100);
+		  HAL_Delay(100);
 
-	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
-	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
-	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 
-	  HAL_Delay(100);
-  }
-
+		  HAL_Delay(100);
+	  }
+  #endif
 
   BME280_Init();
   ESP8266_Init(&huart2, GPIOB, GPIO_PIN_10);
@@ -164,9 +165,11 @@ int main(void)
   {
 	  PC_Send("\nBegin\n");
 
-	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
-	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+	  #ifdef DEBUG_LEDS
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+	  #endif
 
 	  request = false;
 	  connect = false;
@@ -186,7 +189,7 @@ int main(void)
 	      }
 
 	      PC_Send("[ WARNING ] Connect to access point failed! ESP Restart\n");
-	      restart = ESP8266_Test();
+	      restart = ESP8266_Restart();
 
 	      if(restart)
 	      	  PC_Send("[ OK ] ESP Restart\n");
@@ -198,11 +201,12 @@ int main(void)
 	  {
 		  PC_Send("[ ERROR ] Connect to access point\n");
 		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
 		  HAL_Delay(1000);
 		  PC_Send("**************** System restart ****************\n");
 	      NVIC_SystemReset();
 	  }
-
 
 	  currentWeather = BME280_GetWeatherData();
 	  currentBatteryVoltage = getBatteryVoltage();
@@ -249,11 +253,13 @@ int main(void)
 	  ESP8266_OFF();
 	  PC_Send("End\n");
 
-	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
-	  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
-	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+	  #ifdef DEBUG_LEDS
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+	  #endif
 
-	  HAL_Delay(10000);
+      HAL_Delay(10000);
 
     /* USER CODE END WHILE */
 

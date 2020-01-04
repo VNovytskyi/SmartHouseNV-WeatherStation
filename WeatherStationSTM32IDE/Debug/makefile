@@ -24,27 +24,27 @@ endif
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-WeatherStationSTM32IDE.elf \
+WeatherStation.elf \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-WeatherStationSTM32IDE.list \
+WeatherStation.list \
 
 OBJCOPY_HEX += \
-WeatherStationSTM32IDE.hex \
+WeatherStation.hex \
 
 OBJCOPY_BIN += \
-WeatherStationSTM32IDE.bin \
+WeatherStation.bin \
 
 
 # All Target
-all: WeatherStationSTM32IDE.elf secondary-outputs
+all: WeatherStation.elf secondary-outputs
 
 # Tool invocations
-WeatherStationSTM32IDE.elf: $(OBJS) $(USER_OBJS) C:\Users\vladyslavN\Documents\Projects\KievWeather\WeatherStationSTM32IDE\STM32F103C8TX_FLASH.ld
-	arm-none-eabi-gcc -o "WeatherStationSTM32IDE.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\vladyslavN\Documents\Projects\KievWeather\WeatherStationSTM32IDE\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="WeatherStationSTM32IDE.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+WeatherStation.elf: $(OBJS) $(USER_OBJS) C:\Users\vladyslavN\Documents\Projects\KievWeather\WeatherStationSTM32IDE\STM32F103C8TX_FLASH.ld
+	arm-none-eabi-gcc -o "WeatherStation.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\vladyslavN\Documents\Projects\KievWeather\WeatherStationSTM32IDE\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="WeatherStation.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -53,18 +53,18 @@ default.size.stdout: $(EXECUTABLES)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-WeatherStationSTM32IDE.list: $(EXECUTABLES)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "WeatherStationSTM32IDE.list"
+WeatherStation.list: $(EXECUTABLES)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "WeatherStation.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-WeatherStationSTM32IDE.hex: $(EXECUTABLES)
-	arm-none-eabi-objcopy  -O ihex $(EXECUTABLES) "WeatherStationSTM32IDE.hex"
+WeatherStation.hex: $(EXECUTABLES)
+	arm-none-eabi-objcopy  -O ihex $(EXECUTABLES) "WeatherStation.hex"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-WeatherStationSTM32IDE.bin: $(EXECUTABLES)
-	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "WeatherStationSTM32IDE.bin"
+WeatherStation.bin: $(EXECUTABLES)
+	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "WeatherStation.bin"
 	@echo 'Finished building: $@'
 	@echo ' '
 
