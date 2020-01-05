@@ -1,4 +1,0 @@
-http://api.openweathermap.org/data/2.5/find?q=Kyiv&APPID=1e77b0d2964f81799833ea447f48491d
-http://api.openweathermap.org/data/2.5/weather?id=703448&APPID=1e77b0d2964f81799833ea447f48491d
-
-requestStatus = sendRequest("TCP", "api.thingspeak.com", 80, "GET /update?api_key=2W2LPB8P9XOQ4LI7&field1=29");
