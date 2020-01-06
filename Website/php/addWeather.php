@@ -6,6 +6,7 @@
     $temperature = $_GET['t'];
     $humidity = $_GET['h'];
     $pressure = $_GET['p'];
+    $batteryVoltage = $_GET['v'];
 
     //Connect to server
     $servername = "localhost";
@@ -20,8 +21,8 @@
     }
 
     //Insert data into DB
-    $sql = "INSERT INTO `weatherdata` (`idWeatherData`, `DateTime`, `Temperature`, `Humidity`, `Pressure`) 
-            VALUES (NULL, now(), '$temperature', '$humidity', '$pressure')";
+    $sql = "INSERT INTO `weatherdata` (`idWeatherData`, `DateTime`, `Temperature`, `Humidity`, `Pressure`, `batteryVoltage`) 
+            VALUES (NULL, now(), '$temperature', '$humidity', '$pressure', '$batteryVoltage')";
 
     if ($conn->query($sql) === TRUE) {
         echo "New record created successfully";
