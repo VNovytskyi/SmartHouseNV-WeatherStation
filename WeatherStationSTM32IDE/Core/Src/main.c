@@ -33,6 +33,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <usbd_cdc_if.h>
 
 #include "BME280.h"
 #include "ESP8266.h"
@@ -40,28 +41,33 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-#define DEBUG_LEDS
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define DEBUG_LEDS
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+
+
 RTC_TimeTypeDef sTime = {0};
 RTC_DateTypeDef DateToUpdate = {0};
+
 char buff[128];
 float currentBatteryVoltage;
 int counter = 0;
+
 bool request, connect, disconnect, echo, restart, test;
+
 BME280_WeatherData *currentWeather = NULL;
+
 volatile char recvComBuff[64];
 /* USER CODE END PV */
 
@@ -76,12 +82,23 @@ void PC_Send(char *str)
 
 float getBatteryVoltage()
 {
+	const float r1 = 17.70;
+	const float r2 = 16.05;
+	const float ADC_ReferenceVoltage = 3.3;
+	const float ADC_Resolution = 4095;
+
+	uint32_t ADC_Value = 0;
+
 	HAL_ADC_Start(&hadc1);
 	HAL_ADC_PollForConversion(&hadc1, 100);
-	uint32_t adcResult = HAL_ADC_GetValue(&hadc1);
+	ADC_Value = HAL_ADC_GetValue(&hadc1);
 	HAL_ADC_Stop(&hadc1);
 
-	float realVoltage = adcResult / 1085.0 /0.48;
+	float ADC_InputVoltage = (ADC_Value / ADC_Resolution) * ADC_ReferenceVoltage;
+
+	float realVoltage = ADC_InputVoltage / (r1 / r2);
+
+	//float realVoltage = ADC_Value / 1085.0 / 0.48;
 
 	return realVoltage;
 }
