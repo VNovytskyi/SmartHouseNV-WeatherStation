@@ -1,8 +1,2 @@
-Drivers/
-MDK-ARM/
-!Inc/main.h
-!Inc/BME280.h
-!Src/main.c
-!Src/BME280.c
-BME280/
-BME280/*
+WeatherStationSTM32IDE/
+!WeatherStationSTM32IDE/Core
