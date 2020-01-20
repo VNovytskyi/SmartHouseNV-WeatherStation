@@ -150,10 +150,12 @@ int main(void)
 	  HAL_Delay(100);
   }
 
-
+  BME280_Start();
   ESP8266_SetConfig(&huart2, GPIOB, GPIO_PIN_10);
   /* USER CODE END 2 */
  
+ 
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   PC_Send("\nProgram start\n");
@@ -166,7 +168,7 @@ int main(void)
 	  YellowLedHigh;
 	  RedLedLow;
 
-	  BME280_Start();
+
 	  ESP8266_Start();
 
 	  BME280_GetWeather();
