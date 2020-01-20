@@ -45,7 +45,14 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define DEBUG_LEDS
+#define GreenLedLow  HAL_GPIO_WritePin(GreenLed_GPIO_Port, GreenLed_Pin, 0)
+#define GreenLedHigh HAL_GPIO_WritePin(GreenLed_GPIO_Port, GreenLed_Pin, 1)
+
+#define YellowLedLow  HAL_GPIO_WritePin(YellowLed_GPIO_Port, YellowLed_Pin, 0)
+#define YellowLedHigh HAL_GPIO_WritePin(YellowLed_GPIO_Port, YellowLed_Pin, 1)
+
+#define RedLedLow  HAL_GPIO_WritePin(RedLed_GPIO_Port, RedLed_Pin, 0)
+#define RedLedHigh HAL_GPIO_WritePin(RedLed_GPIO_Port, RedLed_Pin, 1)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -55,7 +62,6 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
 
 RTC_TimeTypeDef sTime = {0};
 RTC_DateTypeDef DateToUpdate = {0};
@@ -74,34 +80,16 @@ volatile char recvComBuff[64];
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-void PC_Send(char *str)
-{
-	//HAL_UART_Transmit(&huart1,(uint8_t*)str,strlen(str),1000);
-	CDC_Transmit_FS(str, strlen(str));
-}
 
-float getBatteryVoltage()
-{
-	const float r1 = 17.70;
-	const float r2 = 16.05;
-	const float ADC_ReferenceVoltage = 3.3;
-	const float ADC_Resolution = 4095;
+void PC_Send(char *str);
+float getBatteryVoltage();
 
-	uint32_t ADC_Value = 0;
-
-	HAL_ADC_Start(&hadc1);
-	HAL_ADC_PollForConversion(&hadc1, 100);
-	ADC_Value = HAL_ADC_GetValue(&hadc1);
-	HAL_ADC_Stop(&hadc1);
-
-	float ADC_InputVoltage = (ADC_Value / ADC_Resolution) * ADC_ReferenceVoltage;
-
-	float realVoltage = ADC_InputVoltage / (r1 / r2);
-
-	//float realVoltage = ADC_Value / 1085.0 / 0.48;
-
-	return realVoltage;
-}
+void BME280_Start();
+void ESP8266_Start();
+void BME280_GetWeather();
+void SendRequest();
+void DisconnectFromAP();
+void ShowTimeRTC();
 
 /* USER CODE END PFP */
 
@@ -147,137 +135,54 @@ int main(void)
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
 
-  PC_Send("****************************** Start ******************************\n");
+  for(int i = 0; i < 5; ++i)
+  {
+  	GreenLedLow;
+  	YellowLedLow;
+  	RedLedLow;
 
-  #ifdef DEBUG_LEDS
-	  for(int i = 0; i < 5; ++i)
-	  {
-		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
-		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+	  HAL_Delay(100);
 
-		  HAL_Delay(100);
+	  GreenLedHigh;
+	  YellowLedHigh;
+	  RedLedHigh;
 
-		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
-		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
-		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+	  HAL_Delay(100);
+  }
 
-		  HAL_Delay(100);
-	  }
-  #endif
 
-  BME280_Init();
-  ESP8266_Init(&huart2, GPIOB, GPIO_PIN_10);
-
+  ESP8266_SetConfig(&huart2, GPIOB, GPIO_PIN_10);
   /* USER CODE END 2 */
-
+ 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  PC_Send("\nProgram start\n");
+
   while (1)
   {
 	  PC_Send("\nBegin\n");
 
-	  #ifdef DEBUG_LEDS
-		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET);
-		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-	  #endif
+	  GreenLedLow;
+	  YellowLedHigh;
+	  RedLedLow;
 
-	  request = false;
-	  connect = false;
-	  disconnect = false;
+	  BME280_Start();
+	  ESP8266_Start();
 
-	  for(int i = 0; i < 3; ++i)
-	  {
-		  ESP8266_ON();
-		  HAL_Delay(2000);
+	  BME280_GetWeather();
+	  SendRequest();
+	  DisconnectFromAP();
+	  ShowTimeRTC();
 
-		  //connect = ESP8266_ConnectTo("Snapy", "31055243167vlad");
-		  connect = ESP8266_ConnectTo("MERCUSYS_7EBA", "3105vlad3010vlada");
-	      if(connect)
-	      {
-	    	  PC_Send("[ OK ] Connect to access point\n");
-	    	  break;
-	      }
+	  GreenLedHigh;
+	  YellowLedLow;
+	  RedLedLow;
 
-	      PC_Send("[ WARNING ] Connect to access point failed! ESP Restart\n");
-	      restart = ESP8266_Restart();
-
-	      if(restart)
-	      	  PC_Send("[ OK ] ESP Restart\n");
-	      else
-	          PC_Send("[ ERROR ] ESP Restart\n");
-	  }
-
-	  if(!connect)
-	  {
-		  PC_Send("[ ERROR ] Connect to access point\n");
-		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
-		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-		  HAL_Delay(1000);
-		  PC_Send("**************** System restart ****************\n");
-	      NVIC_SystemReset();
-	  }
-
-	  currentWeather = BME280_GetWeatherData();
-	  currentBatteryVoltage = getBatteryVoltage();
-
-	  sprintf(buff, "GET /weatherStation/addWeather.php?t=%d&h=%d&p=%d&v=%2.2f", (int)currentWeather->temperature, (int)currentWeather->humidity, (int)currentWeather->pressure, currentBatteryVoltage);
-	  request = ESP8266_SendRequest("TCP", "192.168.1.102", 80, buff);
-
-	  if(!request)
-	  {
-		  PC_Send("[ ERROR ] request = false;\n");
-		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
-		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-		  HAL_Delay(1000);
-		  PC_Send("**************** System restart ****************\n");
-	      NVIC_SystemReset();
-	  }
-	  else
-	  {
-		  PC_Send("[ OK ] Request\n");
-	  }
-
-	  disconnect = ESP8266_DisconnectFromWifi();
-
-	  if(!disconnect)
-	  {
-		  PC_Send("[ ERROR ] disconnect = false;\n");
-		  PC_Send("**************** System restart ****************\n");
-		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
-		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-		  HAL_Delay(1000);
-	      NVIC_SystemReset();
-	  }
-	  else
-	  {
-		  PC_Send("[ OK ] Disconnect\n");
-	  }
-
-	  HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
-
-	  ++counter;
-	  sprintf(buff, "[%d-%d-%d %d:%d:%d] %d\n",DateToUpdate.Date, DateToUpdate.Month, DateToUpdate.Year, sTime.Hours, sTime.Minutes, sTime.Seconds, counter);
-	  PC_Send(buff);
-
-	  ESP8266_OFF();
 	  PC_Send("End\n");
-
-	  #ifdef DEBUG_LEDS
-		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
-		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_SET);
-		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-	  #endif
-
-      HAL_Delay(10000);
-
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  HAL_Delay(10000);
   }
   /* USER CODE END 3 */
 }
@@ -331,6 +236,153 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+void BME280_Start()
+{
+	int BME280_InitStatus = BME280_Init();
+
+	if(BME280_InitStatus == BME280_INIT_FAIL)
+	{
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
+
+		while(1)
+		{
+			HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_6);
+			HAL_Delay(100);
+		}
+	}
+}
+
+float getBatteryVoltage()
+{
+	const float r1 = 17.70;
+	const float r2 = 16.05;
+	const float ADC_ReferenceVoltage = 3.3;
+	const float ADC_Resolution = 4095;
+
+	uint32_t ADC_Value = 0;
+
+	HAL_ADC_Start(&hadc1);
+	HAL_ADC_PollForConversion(&hadc1, 100);
+	ADC_Value = HAL_ADC_GetValue(&hadc1);
+	HAL_ADC_Stop(&hadc1);
+
+	float ADC_InputVoltage = (ADC_Value / ADC_Resolution) * ADC_ReferenceVoltage;
+
+	float realVoltage = ADC_InputVoltage / (r1 / r2);
+
+	//float realVoltage = ADC_Value / 1085.0 / 0.48;
+
+	return realVoltage;
+}
+
+void PC_Send(char *str)
+{
+	//HAL_UART_Transmit(&huart1,(uint8_t*)str,strlen(str),1000);
+	CDC_Transmit_FS(str, strlen(str));
+}
+
+void ESP8266_Start()
+{
+	request = false;
+	connect = false;
+	disconnect = false;
+
+	for(int i = 0; i < 3; ++i)
+	{
+		ESP8266_ON();
+		HAL_Delay(2000);
+
+		//connect = ESP8266_ConnectTo("Snapy", "31055243167vlad");
+
+		connect = ESP8266_ConnectTo("MERCUSYS_7EBA", "3105vlad3010vlada");
+
+		if(connect)
+		{
+		  PC_Send("[ OK ] Connect to access point\n");
+		  break;
+		}
+
+		PC_Send("[ WARNING ] Connect to access point failed! ESP Restart\n");
+		restart = ESP8266_Restart();
+
+		if(restart)
+			  PC_Send("[ OK ] ESP Restart\n");
+		else
+			PC_Send("[ ERROR ] ESP Restart\n");
+	}
+
+	if(!connect)
+	{
+		PC_Send("[ ERROR ] Connect to access point\n");
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
+		HAL_Delay(1000);
+		PC_Send("**************** System restart ****************\n");
+		NVIC_SystemReset();
+	}
+}
+
+void BME280_GetWeather()
+{
+	currentWeather = BME280_GetWeatherData();
+	currentBatteryVoltage = getBatteryVoltage();
+}
+
+void SendRequest()
+{
+	sprintf(buff, "GET /weatherStation/addWeather.php?t=%d&h=%d&p=%d&v=%2.2f", (int)currentWeather->temperature, (int)currentWeather->humidity, (int)currentWeather->pressure, currentBatteryVoltage);
+	request = ESP8266_SendRequest("TCP", "192.168.1.102", 80, buff);
+
+	if(!request)
+	{
+		  PC_Send("[ ERROR ] request = false;\n");
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
+		  HAL_Delay(1000);
+		  PC_Send("**************** System restart ****************\n");
+		NVIC_SystemReset();
+	}
+	else
+	{
+		  PC_Send("[ OK ] Request\n");
+	}
+}
+
+void DisconnectFromAP()
+{
+	disconnect = ESP8266_DisconnectFromWifi();
+
+	if(!disconnect)
+	{
+		  PC_Send("[ ERROR ] disconnect = false;\n");
+		  PC_Send("**************** System restart ****************\n");
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
+		  HAL_Delay(1000);
+		NVIC_SystemReset();
+	}
+	else
+	{
+		  PC_Send("[ OK ] Disconnect\n");
+	}
+
+	ESP8266_OFF();
+}
+
+void ShowTimeRTC()
+{
+	HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+
+	++counter;
+	sprintf(buff, "[%d-%d-%d %d:%d:%d] %d\n",DateToUpdate.Date, DateToUpdate.Month, DateToUpdate.Year, sTime.Hours, sTime.Minutes, sTime.Seconds, counter);
+	PC_Send(buff);
+}
+
 
 /* USER CODE END 4 */
 

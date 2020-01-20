@@ -58,18 +58,20 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define Battery_voltage1_Pin GPIO_PIN_0
-#define Battery_voltage1_GPIO_Port GPIOA
+#define Battery_voltage_Pin GPIO_PIN_0
+#define Battery_voltage_GPIO_Port GPIOA
 #define ESP_RX_Pin GPIO_PIN_2
 #define ESP_RX_GPIO_Port GPIOA
 #define ESP_TX_Pin GPIO_PIN_3
 #define ESP_TX_GPIO_Port GPIOA
-#define Station_error_Pin GPIO_PIN_5
-#define Station_error_GPIO_Port GPIOA
-#define Station_work_Pin GPIO_PIN_0
-#define Station_work_GPIO_Port GPIOB
-#define Station_sleep_Pin GPIO_PIN_1
-#define Station_sleep_GPIO_Port GPIOB
+#define RedLed_Pin GPIO_PIN_6
+#define RedLed_GPIO_Port GPIOA
+#define YellowLed_Pin GPIO_PIN_0
+#define YellowLed_GPIO_Port GPIOB
+#define GreenLed_Pin GPIO_PIN_1
+#define GreenLed_GPIO_Port GPIOB
+#define ESP_CH_EN_Pin GPIO_PIN_10
+#define ESP_CH_EN_GPIO_Port GPIOB
 #define BME280_SCL_Pin GPIO_PIN_6
 #define BME280_SCL_GPIO_Port GPIOB
 #define BME280_SDA_Pin GPIO_PIN_7
