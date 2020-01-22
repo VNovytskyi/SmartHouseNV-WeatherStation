@@ -170,4 +170,31 @@
     </div><!--Main page end-->
 </body>
 </html>
+<script>
+    var counter = 0;
+    
+    setInterval(function() {
+        var adr = 'http://192.168.1.102/weatherStation/getLastWeatherJson.php';
+
+        var xhr = new XMLHttpRequest(); 
+        xhr.open('GET', adr, false);
+        xhr.send();
+
+        if (xhr.status != 200) 
+        {
+            alert( xhr.status + ': ' + xhr.statusText ); // пример вывода: 404: Not Found
+        } 
+        else 
+        {
+            var obj = JSON.parse(xhr.responseText);
+            document.getElementById("AWS_LastUpdate").innerHTML =  obj.dateTime;
+            document.getElementById("AWS_LastTemperature").innerHTML = obj.temperature;
+            document.getElementById("AWS_LastHumidity").innerHTML = obj.humidity;
+            document.getElementById("AWS_LastPressure").innerHTML = obj.pressure;
+            //document.getElementById("batteryVoltage").innerHTML = obj.batteryVoltage;
+
+            console.log(++counter);   
+        }
+    }, 1000);
+</script>
 

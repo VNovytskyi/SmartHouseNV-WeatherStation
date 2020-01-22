@@ -219,11 +219,13 @@ p{
 
 .containers > button
 {
-    width: 50px;
+    border-radius: 5px;
     margin-left: auto;
-    margin-right: auto;
+    margin-right: auto; 
     display: block;
-    
+    font-size: 14px;
+    background-color: rgb(231, 230, 230);
+    color: black;
 }
 
 /****************************************************************************************************

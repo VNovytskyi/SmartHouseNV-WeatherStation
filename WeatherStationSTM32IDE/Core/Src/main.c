@@ -158,16 +158,11 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  PC_Send("\nProgram start\n");
-
   while (1)
   {
-	  PC_Send("\nBegin\n");
-
 	  GreenLedLow;
 	  YellowLedHigh;
 	  RedLedLow;
-
 
 	  ESP8266_Start();
 
@@ -179,8 +174,6 @@ int main(void)
 	  GreenLedHigh;
 	  YellowLedLow;
 	  RedLedLow;
-
-	  PC_Send("End\n");
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -244,15 +237,19 @@ void BME280_Start()
 
 	if(BME280_InitStatus == BME280_INIT_FAIL)
 	{
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
+		GreenLedLow;
+		YellowLedLow;
+		RedLedLow;
 
-		while(1)
+		for(int i = 0; i < 10; ++i)
 		{
-			HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_6);
+			RedLedHigh;
+			HAL_Delay(100);
+			RedLedLow;
 			HAL_Delay(100);
 		}
+
+		NVIC_SystemReset();
 	}
 }
 
@@ -297,32 +294,26 @@ void ESP8266_Start()
 		HAL_Delay(2000);
 
 		//connect = ESP8266_ConnectTo("Snapy", "31055243167vlad");
-
 		connect = ESP8266_ConnectTo("MERCUSYS_7EBA", "3105vlad3010vlada");
 
 		if(connect)
 		{
-		  PC_Send("[ OK ] Connect to access point\n");
 		  break;
 		}
 
-		PC_Send("[ WARNING ] Connect to access point failed! ESP Restart\n");
 		restart = ESP8266_Restart();
-
-		if(restart)
-			  PC_Send("[ OK ] ESP Restart\n");
-		else
-			PC_Send("[ ERROR ] ESP Restart\n");
 	}
 
 	if(!connect)
 	{
-		PC_Send("[ ERROR ] Connect to access point\n");
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-		HAL_Delay(1000);
-		PC_Send("**************** System restart ****************\n");
+		for(int i = 0; i < 10; ++i)
+		{
+			RedLedHigh;
+			HAL_Delay(100);
+			RedLedLow;
+			HAL_Delay(100);
+		}
+
 		NVIC_SystemReset();
 	}
 }
@@ -340,17 +331,15 @@ void SendRequest()
 
 	if(!request)
 	{
-		  PC_Send("[ ERROR ] request = false;\n");
-		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
-		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-		  HAL_Delay(1000);
-		  PC_Send("**************** System restart ****************\n");
+	  for(int i = 0; i < 10; ++i)
+		{
+			RedLedHigh;
+			HAL_Delay(100);
+			RedLedLow;
+			HAL_Delay(100);
+		}
+
 		NVIC_SystemReset();
-	}
-	else
-	{
-		  PC_Send("[ OK ] Request\n");
 	}
 }
 
@@ -360,17 +349,15 @@ void DisconnectFromAP()
 
 	if(!disconnect)
 	{
-		  PC_Send("[ ERROR ] disconnect = false;\n");
-		  PC_Send("**************** System restart ****************\n");
-		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
-		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_1, GPIO_PIN_RESET);
-		  HAL_Delay(1000);
+		for(int i = 0; i < 10; ++i)
+		{
+			RedLedHigh;
+			HAL_Delay(100);
+			RedLedLow;
+			HAL_Delay(100);
+		}
+
 		NVIC_SystemReset();
-	}
-	else
-	{
-		  PC_Send("[ OK ] Disconnect\n");
 	}
 
 	ESP8266_OFF();
