@@ -326,7 +326,7 @@ void BME280_GetWeather()
 
 void SendRequest()
 {
-	sprintf(buff, "GET /weatherStation/addWeather.php?t=%d&h=%d&p=%d&v=%2.2f", (int)currentWeather->temperature, (int)currentWeather->humidity, (int)currentWeather->pressure, currentBatteryVoltage);
+	sprintf(buff, "GET /weatherStation/main.php?type=addNewRecord&t=%d&h=%d&p=%d&v=%2.2f", (int)currentWeather->temperature, (int)currentWeather->humidity, (int)currentWeather->pressure, currentBatteryVoltage);
 	request = ESP8266_SendRequest("TCP", "192.168.1.102", 80, buff);
 
 	if(!request)

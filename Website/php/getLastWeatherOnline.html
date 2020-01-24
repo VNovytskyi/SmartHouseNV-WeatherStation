@@ -17,10 +17,12 @@
 
 <script>
     var counter = 0;
-
+    
     setInterval(function() {
+        var adr = 'http://192.168.1.102/weatherStation/getLastWeatherJson.php';
+
         var xhr = new XMLHttpRequest(); 
-        xhr.open('GET', 'http://localhost/weatherStation/getLastWeatherJson.php', false);
+        xhr.open('GET', adr, false);
         xhr.send();
 
         if (xhr.status != 200) 
