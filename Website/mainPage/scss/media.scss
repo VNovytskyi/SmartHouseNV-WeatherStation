@@ -1,0 +1,30 @@
+@media screen and (max-width: 650px)
+{
+    .containers
+    {
+       width: 30%;
+       padding: 0px;
+       margin: 0px; 
+    }
+
+    #flexContentContainer
+    {
+        margin: 0px;
+
+    }
+
+    #slide2
+    {
+        padding-bottom: 40px;
+    }
+}
+
+@media screen and (min-width: 651px) and (max-width: 750px)
+{
+    .containers
+    {
+       width: 100px;
+       padding: 15px;
+       margin: 15px;
+    }
+}
