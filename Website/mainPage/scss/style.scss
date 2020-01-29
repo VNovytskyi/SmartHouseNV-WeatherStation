@@ -5,7 +5,9 @@
 @import "form.scss";
 @import "hamButton.scss";
 @import "preload.scss";
+@import "media.scss";
 
+$grayColor: rgb(231, 230, 230);
 
 input {outline:none;}
 
@@ -18,14 +20,21 @@ body
 
 i 
 {
-    color: rgb(231, 230, 230);
+    color: $grayColor;
     margin: 0;
     padding: 6px;
 }
 
-#slide2, #slide3, #slide4
+#slide1, #slide2, #slide3
 {
     max-width: 100vw;
+    min-height: 100vh;
+}
+
+h1, h2, h3, p
+{
+    color: $grayColor;
+    text-align: center;
 }
 
 #mainPage
@@ -33,14 +42,29 @@ i
     display: none;
 }
 
-/***********************f*****************************************************************************
+h1
+{
+    margin: 0;
+    padding-top: 30px;
+    font-size: 40px;
+    font-family: 'Advent Pro';
+}
+
+h2 { font-size: 20px; }
+
+h3 { font-size: 16px; }
+
+h2, h3
+{
+    padding: 0px;
+}
+
+/****************************************************************************************************
     Slide 1
 */
 
 #slide1 
 {
-    max-width: 100vw;
-    height: 100vh;
     background-size: cover;
     min-height: 400px;
 }
@@ -138,35 +162,6 @@ i
     height: 100vh;
 }
 
-h1
-{
-    margin: 0;
-    padding-top: 30px;
-    font-size: 40px;
-    color: rgb(231, 230, 230);
-    font-family: 'Advent Pro';
-    text-align: center;
-}
-
-h2, h3
-{
-    color: rgb(231, 230, 230);
-    padding: 0px;
-    text-align: center;
-}
-
-h2{
-    font-size: 20px;
-}
-
-h3{
-    font-size: 16px;
-}
-
-p{
-    color: rgb(231, 230, 230);
-}
-
 #flexContentContainer
 {
     color: black;   
@@ -206,7 +201,7 @@ p{
     margin-right: auto; 
     display: block;
     font-size: 14px;
-    background-color: rgb(231, 230, 230);
+    background-color: $grayColor;
     color: black;
 }
 
@@ -242,6 +237,3 @@ p{
     margin-right: auto;
     width: 50%;
 }
-
-
-@import "media.scss";

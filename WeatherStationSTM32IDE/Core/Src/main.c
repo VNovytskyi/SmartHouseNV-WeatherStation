@@ -24,7 +24,6 @@
 #include "i2c.h"
 #include "rtc.h"
 #include "usart.h"
-#include "usb_device.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -33,7 +32,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-#include <usbd_cdc_if.h>
 
 #include "BME280.h"
 #include "ESP8266.h"
@@ -129,10 +127,8 @@ int main(void)
   MX_GPIO_Init();
   MX_ADC1_Init();
   MX_I2C1_Init();
-  MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   MX_RTC_Init();
-  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
 
   for(int i = 0; i < 5; ++i)
@@ -219,11 +215,9 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_ADC
-                              |RCC_PERIPHCLK_USB;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_ADC;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
   PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV4;
-  PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -279,7 +273,7 @@ float getBatteryVoltage()
 void PC_Send(char *str)
 {
 	//HAL_UART_Transmit(&huart1,(uint8_t*)str,strlen(str),1000);
-	CDC_Transmit_FS(str, strlen(str));
+	//CDC_Transmit_FS(str, strlen(str));
 }
 
 void ESP8266_Start()
