@@ -32,6 +32,7 @@
         else 
         {
             var obj = JSON.parse(xhr.responseText);
+            
             document.getElementById("dateTime").innerHTML = "dateTime: " + obj.dateTime;
             document.getElementById("temperature").innerHTML = "temperature: " + obj.temperature;
             document.getElementById("humidity").innerHTML = "humidity: " + obj.humidity;

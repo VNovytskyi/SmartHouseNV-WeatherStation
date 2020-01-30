@@ -1,36 +1,17 @@
-var RequestFromAWS = new XMLHttpRequest();
 var RequestFromSW = new XMLHttpRequest();
 var RequestFromSW5days = new XMLHttpRequest();
 
 //For debug in console
-var ObjRequestFromAWS, 
-    ObjRequestFromSW, 
+var ObjRequestFromSW = null, 
     ObjRequestFromSW5days = null;
 
-    var date;
+var date;
 
-RequestFromAWS.open('GET', 'http://192.168.1.102/getJSONLastWeather.php', true);
 RequestFromSW.open("GET", "http://api.openweathermap.org/data/2.5/weather?id=703448&APPID=1e77b0d2964f81799833ea447f48491d", true);
 RequestFromSW5days.open("GET", "http://api.openweathermap.org/data/2.5/forecast?id=703448&appid=1e77b0d2964f81799833ea447f48491d", true);
 
-RequestFromAWS.send();
 RequestFromSW.send();
 RequestFromSW5days.send();
-
-//Answer from autonomous weather station
-RequestFromAWS.onreadystatechange = function() {
-    if (this.readyState != 4) return;
-
-    if (RequestFromAWS.status == 200) 
-    {
-        ObjRequestFromAWS = JSON.parse(this.responseText);
-
-        $("#AWS_LastUpdate").html("last update: " + ObjRequestFromAWS["DateTime"]);
-        $("#AWS_LastTemperature").html(ObjRequestFromAWS["Temperature"]);
-        $("#AWS_LastHumidity").html(ObjRequestFromAWS["Humidity"]);
-        $("#AWS_LastPressure").html(ObjRequestFromAWS["Pressure"]);
-    }
-}
 
 //Answer from SimpleWeather (current weather)
 RequestFromSW.onreadystatechange = function() {
@@ -70,3 +51,25 @@ RequestFromSW5days.onreadystatechange = function() {
 
     }
 };
+
+setInterval(function() {
+    var adr = 'http://192.168.1.102/weatherStation/getLastWeatherJson.php';
+
+    var xhr = new XMLHttpRequest(); 
+    xhr.open('GET', adr, false);
+    xhr.send();
+
+    if (xhr.status != 200) 
+    {
+        alert( xhr.status + ': ' + xhr.statusText ); // пример вывода: 404: Not Found
+    } 
+    else 
+    {
+        var obj = JSON.parse(xhr.responseText);
+        document.getElementById("AWS_LastUpdate").innerHTML = obj.dateTime;
+        document.getElementById("AWS_LastTemperature").innerHTML = '<i class="fas fa-thermometer-half"> ' + obj.temperature;
+        document.getElementById("AWS_LastHumidity").innerHTML = '<i class="fas fa-tint"></i>' + obj.humidity;
+        document.getElementById("AWS_LastPressure").innerHTML = '<i class="fab fa-product-hunt"></i>' + obj.pressure;
+        //document.getElementById("batteryVoltage").innerHTML = obj.batteryVoltage;   
+    }
+}, 1000);
