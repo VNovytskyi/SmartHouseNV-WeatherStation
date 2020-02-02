@@ -1,30 +1,62 @@
+//Маленький экран
 @media screen and (max-width: 650px)
 {
+    .marginLeft
+    {
+       margin-left: 10px;
+    }
+
     .containers
-    {
-       width: 30%;
+    { 
+       width: 50%;
+       margin: 0px;
        padding: 0px;
-       margin: 0px; 
+       margin-top: 15px
     }
 
-    #flexContentContainer
+    #test
     {
-        margin: 0px;
-
+        background-color: blue;
     }
 
-    #slide2
+    .blocks_3 
     {
-        padding-bottom: 40px;
+        display: block;
+        width: 100%;
     }
 }
 
-@media screen and (min-width: 651px) and (max-width: 750px)
+//Средний экран
+@media screen and (min-width: 651px) and (max-width: 780px)
 {
     .containers
     {
-       width: 100px;
+       width: 120px;
        padding: 15px;
        margin: 15px;
+    }
+
+    #test
+    {
+        background-color: yellow;
+    }
+
+    .blocks_3
+    {
+        margin: 0px;
+    }
+
+    .marginLeft
+    {
+       margin-left: 20px;
+    }
+    
+}
+
+@media screen and (min-width: 781px)
+{
+    .marginLeft
+    {
+       margin-left: 50px;
     }
 }
