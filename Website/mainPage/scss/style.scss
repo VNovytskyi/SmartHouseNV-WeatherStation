@@ -57,9 +57,9 @@ h1
     font-family: 'Advent Pro';
 }
 
-h2 { font-size: 20px; }
+h2 { font-size: 22px; }
 
-h3 { font-size: 16px; }
+h3 { font-size: 18px; }
 
 h2, h3
 {
@@ -226,6 +226,13 @@ h2, h3
     color: black;
 }
 
+#AWS
+{
+    width: fit-content;
+    margin-left: 10px;
+    font-size: 22px;
+}
+
 /****************************************************************************************************
     Slide 4
 */
@@ -262,7 +269,7 @@ h2, h3
 
     .footerBigLabel 
     {
-        font-size: 24px;
+        font-size: 28px;
     }
     
     .centre {
@@ -296,6 +303,8 @@ h2, h3
         color: white;
         padding-top: 30px;
     } 
+
+  
 }
 
 @import "media.scss";

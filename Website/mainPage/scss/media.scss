@@ -14,15 +14,17 @@
        margin-top: 15px
     }
 
-    #test
+    #slide4 .blocks_3
     {
-        background-color: blue;
+        width: 100vw;
+        text-align: center;
+        margin-top: 10px;
     }
 
-    .blocks_3 
+    #slide4 .contentAlignRight
     {
-        display: block;
-        width: 100%;
+        margin-right: auto;
+        margin-left: auto;
     }
 }
 
@@ -36,11 +38,6 @@
        margin: 15px;
     }
 
-    #test
-    {
-        background-color: yellow;
-    }
-
     .blocks_3
     {
         margin: 0px;
@@ -50,9 +47,16 @@
     {
        margin-left: 20px;
     }
+
+    .marginFlex
+    {
+        text-align: center;
+    }
+
     
 }
 
+//Большой экран
 @media screen and (min-width: 781px)
 {
     .marginLeft

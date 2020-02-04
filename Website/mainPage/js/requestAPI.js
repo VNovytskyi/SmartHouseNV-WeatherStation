@@ -1,34 +1,53 @@
-var RequestFromSW = new XMLHttpRequest();
-var RequestFromSW5days = new XMLHttpRequest();
+/*
+    Current weather from Rapid API
+*/
+var nullData = null;
+var obj;
+var currentWeatherFromRapid = new XMLHttpRequest();
 
-//For debug in console
-var ObjRequestFromSW = null, 
-    ObjRequestFromSW5days = null;
-
-var date;
-
-RequestFromSW.open("GET", "http://api.openweathermap.org/data/2.5/weather?id=703448&APPID=1e77b0d2964f81799833ea447f48491d", true);
-RequestFromSW5days.open("GET", "http://api.openweathermap.org/data/2.5/forecast?id=703448&appid=1e77b0d2964f81799833ea447f48491d", true);
-
-RequestFromSW.send();
-RequestFromSW5days.send();
-
-//Answer from SimpleWeather (current weather)
-RequestFromSW.onreadystatechange = function() {
+currentWeatherFromRapid.onreadystatechange = function() 
+{
     if (this.readyState != 4) return;
 
     if (this.status == 200) 
     {
-        ObjRequestFromSW = JSON.parse(this.responseText);
-
-        $("#mainIcon").attr("src","http://openweathermap.org/img/wn/" + ObjRequestFromSW.weather[0].icon + "@2x.png");
-        $("#mainTemperature").html(Math.round(ObjRequestFromSW.main.temp - 273) + "&deg");
-        $("#mainPressure").append(Math.round(ObjRequestFromSW.main.pressure / 133 * 100));
-        $("#mainHumidity").append(Math.round(ObjRequestFromSW.main.humidity));
-        $("#webIcon").attr("src","http://openweathermap.org/img/wn/" + ObjRequestFromSW.weather[0].icon + "@2x.png");
-        $("#mainDescription").html(ObjRequestFromSW.weather[0].main + ", " + ObjRequestFromSW.weather[0].description);
+        obj = JSON.parse(this.responseText);
+        $("#mainIcon").attr("src","C:/Users/vladyslavN/Documents/Projects/KievWeather/Website/mainPage/icons/" + obj.data[0].weather.icon + ".png");
+        $("#webIcon").attr("src","C:/Users/vladyslavN/Documents/Projects/KievWeather/Website/mainPage/icons/" + obj.data[0].weather.icon + ".png");
+        $("#mainTemperature").html(Math.round(obj.data[0].temp) + "&deg");
+        $("#mainHumidity").append(Math.round(obj.data[0].rh));
+        $("#mainPressure").append(Math.round(obj.data[0].pres / 133 * 100));
+        $("#mainDescription").html(obj.data[0].weather.description);
     }
 };
+
+currentWeatherFromRapid.open("GET", "https://weatherbit-v1-mashape.p.rapidapi.com/current?lang=en&lon=30.52&lat=50.43");
+currentWeatherFromRapid.setRequestHeader("x-rapidapi-host", "weatherbit-v1-mashape.p.rapidapi.com");
+currentWeatherFromRapid.setRequestHeader("x-rapidapi-key", "491db123camshc535f3524f34e89p133072jsn5dd65ef95462");
+currentWeatherFromRapid.send(nullData);
+
+
+
+
+/************************************************************************************************************************************
+
+*/
+
+
+var RequestFromSW5days = new XMLHttpRequest();
+
+
+
+var date, outDate, outTime;
+
+
+RequestFromSW5days.open("GET", "http://api.openweathermap.org/data/2.5/forecast?id=703448&appid=1e77b0d2964f81799833ea447f48491d", true);
+
+
+RequestFromSW5days.send();
+
+//Answer from SimpleWeather (current weather)
+
 
 //Answer from SimpleWeather (forecast for next 5 days)
 RequestFromSW5days.onreadystatechange = function() {
@@ -38,17 +57,17 @@ RequestFromSW5days.onreadystatechange = function() {
     {
         ObjRequestFromSW5days = JSON.parse(this.responseText);
 
-        var dt = ObjRequestFromSW5days.list[0].dt * 1000;
+        var dt = (ObjRequestFromSW5days.list[0].dt) * 1000;
         
         date = new Date(dt);
+        
+        
+        outDate = date.getUTCFullYear() + "." + date.getMonth() + "." + date.getDay();
+        outTime = date.getUTCHours() + ":00";
         
 
         //ObjRequestFromSW5days.list[0].main.temp
         //ObjRequestFromSW5days.list[0].dt
-
-        // echo date("Y-m-d H:i:s", 1575925200);
-        
-
     }
 };
 
