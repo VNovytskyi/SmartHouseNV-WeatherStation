@@ -146,7 +146,25 @@ int main(void)
 	  HAL_Delay(100);
   }
 
-  BME280_Start();
+  int BME280_InitStatus = BME280_Init();
+
+  if(BME280_InitStatus == BME280_INIT_FAIL)
+  {
+  	GreenLedLow;
+  	YellowLedLow;
+  	RedLedLow;
+
+  	for(int i = 0; i < 10; ++i)
+  	{
+  		RedLedHigh;
+  		HAL_Delay(100);
+  		RedLedLow;
+  		HAL_Delay(100);
+  	}
+
+  	NVIC_SystemReset();
+  }
+
   ESP8266_SetConfig(&huart2, GPIOB, GPIO_PIN_10);
   /* USER CODE END 2 */
  
@@ -160,12 +178,78 @@ int main(void)
 	  YellowLedHigh;
 	  RedLedLow;
 
-	  ESP8266_Start();
+	  request = false;
+	  connect = false;
+	  disconnect = false;
 
-	  BME280_GetWeather();
-	  SendRequest();
-	  DisconnectFromAP();
-	  ShowTimeRTC();
+	  currentWeather = BME280_GetWeatherData();
+	  currentBatteryVoltage = getBatteryVoltage();
+
+	  ESP8266_ON();
+
+	  for(int i = 0; i < 3; ++i)
+	  {
+	  	HAL_Delay(2000);
+
+	  	//connect = ESP8266_ConnectTo("Snapy", "31055243167vlad");
+	  	connect = ESP8266_ConnectTo("MERCUSYS_7EBA", "3105vlad3010vlada");
+
+	  	if(connect)
+	  		  break;
+
+	  	restart = ESP8266_Restart();
+	  }
+
+	  if(!connect)
+	  {
+	  	for(int i = 0; i < 10; ++i)
+	  	{
+	  		RedLedHigh;
+	  		HAL_Delay(100);
+	  		RedLedLow;
+	  		HAL_Delay(100);
+	  	}
+
+	  	NVIC_SystemReset();
+	  }
+
+	  sprintf(buff, "GET /weatherStation/main.php?type=addNewRecord&t=%2.2f&h=%3.2f&p=%4.2f&v=%2.2f", currentWeather->temperature, currentWeather->humidity, currentWeather->pressure, currentBatteryVoltage);
+	  request = ESP8266_SendRequest("TCP", "192.168.1.102", 80, buff);
+
+	  if(!request)
+	  {
+	  	for(int i = 0; i < 10; ++i)
+	  	{
+	  		RedLedHigh;
+	  		HAL_Delay(100);
+	  		RedLedLow;
+	  		HAL_Delay(100);
+	  	}
+
+	  	NVIC_SystemReset();
+	  }
+
+	  disconnect = ESP8266_DisconnectFromWifi();
+
+		if(!disconnect)
+		{
+			for(int i = 0; i < 10; ++i)
+			{
+				RedLedHigh;
+				HAL_Delay(100);
+				RedLedLow;
+				HAL_Delay(100);
+			}
+
+			NVIC_SystemReset();
+		}
+
+	  ESP8266_OFF();
+
+	  HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+
+	  ++counter;
+	  sprintf(buff, "[%d-%d-%d %d:%d:%d] %d\n",DateToUpdate.Date, DateToUpdate.Month, DateToUpdate.Year, sTime.Hours, sTime.Minutes, sTime.Seconds, counter);
 
 	  GreenLedHigh;
 	  YellowLedLow;
@@ -225,47 +309,23 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-void BME280_Start()
-{
-	int BME280_InitStatus = BME280_Init();
-
-	if(BME280_InitStatus == BME280_INIT_FAIL)
-	{
-		GreenLedLow;
-		YellowLedLow;
-		RedLedLow;
-
-		for(int i = 0; i < 10; ++i)
-		{
-			RedLedHigh;
-			HAL_Delay(100);
-			RedLedLow;
-			HAL_Delay(100);
-		}
-
-		NVIC_SystemReset();
-	}
-}
-
 float getBatteryVoltage()
 {
-	const float r1 = 17.70;
-	const float r2 = 16.05;
-	const float ADC_ReferenceVoltage = 3.3;
-	const float ADC_Resolution = 4095;
+	const float r1 = 47.7;
+	const float r2 = 91;
 
-	uint32_t ADC_Value = 0;
+	//const float ADC_ReferenceVoltage = 3.3;
+	const float ADC_ReferenceVoltage = 5.0;
+	const float ADC_Resolution = 4095;
 
 	HAL_ADC_Start(&hadc1);
 	HAL_ADC_PollForConversion(&hadc1, 100);
-	ADC_Value = HAL_ADC_GetValue(&hadc1);
+	uint32_t ADC_Value = HAL_ADC_GetValue(&hadc1);
 	HAL_ADC_Stop(&hadc1);
 
-	float ADC_InputVoltage = (ADC_Value / ADC_Resolution) * ADC_ReferenceVoltage;
+	float ADC_Voltage = (ADC_Value / ADC_Resolution) * ADC_ReferenceVoltage;
 
-	float realVoltage = ADC_InputVoltage / (r1 / r2);
-
-	//float realVoltage = ADC_Value / 1085.0 / 0.48;
+	float realVoltage = ADC_Voltage * (r1 + r2) / r2;
 
 	return realVoltage;
 }
@@ -275,97 +335,6 @@ void PC_Send(char *str)
 	//HAL_UART_Transmit(&huart1,(uint8_t*)str,strlen(str),1000);
 	//CDC_Transmit_FS(str, strlen(str));
 }
-
-void ESP8266_Start()
-{
-	request = false;
-	connect = false;
-	disconnect = false;
-
-	for(int i = 0; i < 3; ++i)
-	{
-		ESP8266_ON();
-		HAL_Delay(2000);
-
-		//connect = ESP8266_ConnectTo("Snapy", "31055243167vlad");
-		connect = ESP8266_ConnectTo("MERCUSYS_7EBA", "3105vlad3010vlada");
-
-		if(connect)
-		{
-		  break;
-		}
-
-		restart = ESP8266_Restart();
-	}
-
-	if(!connect)
-	{
-		for(int i = 0; i < 10; ++i)
-		{
-			RedLedHigh;
-			HAL_Delay(100);
-			RedLedLow;
-			HAL_Delay(100);
-		}
-
-		NVIC_SystemReset();
-	}
-}
-
-void BME280_GetWeather()
-{
-	currentWeather = BME280_GetWeatherData();
-	currentBatteryVoltage = getBatteryVoltage();
-}
-
-void SendRequest()
-{
-	sprintf(buff, "GET /weatherStation/main.php?type=addNewRecord&t=%d&h=%d&p=%d&v=%2.2f", (int)currentWeather->temperature, (int)currentWeather->humidity, (int)currentWeather->pressure, currentBatteryVoltage);
-	request = ESP8266_SendRequest("TCP", "192.168.1.102", 80, buff);
-
-	if(!request)
-	{
-	  for(int i = 0; i < 10; ++i)
-		{
-			RedLedHigh;
-			HAL_Delay(100);
-			RedLedLow;
-			HAL_Delay(100);
-		}
-
-		NVIC_SystemReset();
-	}
-}
-
-void DisconnectFromAP()
-{
-	disconnect = ESP8266_DisconnectFromWifi();
-
-	if(!disconnect)
-	{
-		for(int i = 0; i < 10; ++i)
-		{
-			RedLedHigh;
-			HAL_Delay(100);
-			RedLedLow;
-			HAL_Delay(100);
-		}
-
-		NVIC_SystemReset();
-	}
-
-	ESP8266_OFF();
-}
-
-void ShowTimeRTC()
-{
-	HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
-
-	++counter;
-	sprintf(buff, "[%d-%d-%d %d:%d:%d] %d\n",DateToUpdate.Date, DateToUpdate.Month, DateToUpdate.Year, sTime.Hours, sTime.Minutes, sTime.Seconds, counter);
-	PC_Send(buff);
-}
-
 
 /* USER CODE END 4 */
 
