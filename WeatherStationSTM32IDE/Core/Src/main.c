@@ -158,6 +158,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+  	ESP8266_ON();
   	StationStatus(Working);
 
 	  request = false;
@@ -166,8 +167,6 @@ int main(void)
 
 	  currentWeather = BME280_GetWeatherData();
 	  currentBatteryVoltage = getBatteryVoltage();
-
-	  ESP8266_ON();
 
 	  for(int i = 0; i < 3; ++i)
 	  {
@@ -277,10 +276,14 @@ float getBatteryVoltage()
 	const float ADC_ReferenceVoltage = 5.0;
 	const float ADC_Resolution = 4095;
 
+	MX_ADC1_Init();
+
 	HAL_ADC_Start(&hadc1);
 	HAL_ADC_PollForConversion(&hadc1, 100);
 	uint32_t ADC_Value = HAL_ADC_GetValue(&hadc1);
 	HAL_ADC_Stop(&hadc1);
+
+	HAL_ADC_DeInit(&hadc1);
 
 	float ADC_Voltage = (ADC_Value / ADC_Resolution) * ADC_ReferenceVoltage;
 
@@ -297,13 +300,45 @@ void PC_Send(char *str)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	if(HAL_GetTick() - lastPressed > 500)
+	if(HAL_GetTick() - lastPressed > 300 && GPIO_Pin == LedsControlButton_Pin)
 	{
 		lastPressed = HAL_GetTick();
-		ledsEnable = !ledsEnable;
-		RedLedHigh;
+
+		if(ledsEnable == true)
+		{
+			GreenLedLow;
+			YellowLedLow;
+			RedLedLow;
+
+			ledsEnable = false;
+
+			HAL_GPIO_DeInit(GPIOB, YellowLed_Pin | GreenLed_Pin);
+			HAL_GPIO_DeInit(RedLed_GPIO_Port, RedLed_Pin);
+		}
+		else
+		{
+			ledsEnable = true;
+
+			GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+			HAL_GPIO_WritePin(RedLed_GPIO_Port, RedLed_Pin, GPIO_PIN_RESET);
+			GPIO_InitStruct.Pin = RedLed_Pin;
+			GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+			GPIO_InitStruct.Pull = GPIO_NOPULL;
+			GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+			HAL_GPIO_Init(RedLed_GPIO_Port, &GPIO_InitStruct);
+
+		  HAL_GPIO_WritePin(GPIOB, YellowLed_Pin | GreenLed_Pin, GPIO_PIN_RESET);
+			GPIO_InitStruct.Pin = YellowLed_Pin | GreenLed_Pin;
+			GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+			GPIO_InitStruct.Pull = GPIO_NOPULL;
+			GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+			HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+		}
+
 		StationStatus(-1);
 	}
+
 }
 
 void StationStatus(int newStationStatus)
@@ -311,47 +346,49 @@ void StationStatus(int newStationStatus)
 	if(newStationStatus != -1)
 		currentStationStatus = newStationStatus;
 
-	GreenLedLow;
-	YellowLedLow;
-	RedLedLow;
-	//RedLedHigh;
-
-	switch(currentStationStatus)
+	if(ledsEnable)
 	{
-		case Start:
-			for(int i = 0; i < 5 && ledsEnable; ++i)
-			{
-			  GreenLedLow;
-			 	YellowLedLow;
-			 	RedLedLow;
+		GreenLedLow;
+		YellowLedLow;
+		RedLedLow;
 
-			 	HAL_Delay(100);
+		switch(currentStationStatus)
+		{
+			case Start:
+				for(int i = 0; i < 5; ++i)
+				{
+					GreenLedLow;
+					YellowLedLow;
+					RedLedLow;
 
+					HAL_Delay(100);
+
+					GreenLedHigh;
+					YellowLedHigh;
+					RedLedHigh;
+
+					HAL_Delay(100);
+				}
+				break;
+
+			case Working:
+				YellowLedHigh;
+				break;
+
+			case Sleep:
 				GreenLedHigh;
-			  YellowLedHigh;
-			  RedLedHigh;
+				break;
 
-			  HAL_Delay(100);
-		  }
-			break;
-
-		case Working:
-			YellowLedHigh;
-			break;
-
-		case Sleep:
-			GreenLedHigh;
-			break;
-
-		case Error:
-			for(int i = 0; i < 10; ++i)
-			{
-	  		RedLedHigh;
-	  		HAL_Delay(100);
-			  RedLedLow;
-			  HAL_Delay(100);
-			}
-		  break;
+			case Error:
+				for(int i = 0; i < 10; ++i)
+				{
+					RedLedHigh;
+					HAL_Delay(100);
+					RedLedLow;
+					HAL_Delay(100);
+				}
+				break;
+		}
 	}
 }
 

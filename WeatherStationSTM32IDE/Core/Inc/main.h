@@ -60,6 +60,9 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define BatteryVoltage_Pin GPIO_PIN_0
 #define BatteryVoltage_GPIO_Port GPIOA
+#define LedsControlButton_Pin GPIO_PIN_1
+#define LedsControlButton_GPIO_Port GPIOA
+#define LedsControlButton_EXTI_IRQn EXTI1_IRQn
 #define ESP_RX_Pin GPIO_PIN_2
 #define ESP_RX_GPIO_Port GPIOA
 #define ESP_TX_Pin GPIO_PIN_3
