@@ -89,6 +89,6 @@ setInterval(function() {
         document.getElementById("AWS_LastTemperature").innerHTML = '<i class="fas fa-thermometer-half"> ' + obj.temperature;
         document.getElementById("AWS_LastHumidity").innerHTML = '<i class="fas fa-tint"></i>' + obj.humidity;
         document.getElementById("AWS_LastPressure").innerHTML = '<i class="fab fa-product-hunt"></i>' + obj.pressure;
-        //document.getElementById("batteryVoltage").innerHTML = obj.batteryVoltage;   
+        document.getElementById("AWS_BatteryVoltage").innerHTML = obj.batteryVoltage + " В";   
     }
 }, 1000);

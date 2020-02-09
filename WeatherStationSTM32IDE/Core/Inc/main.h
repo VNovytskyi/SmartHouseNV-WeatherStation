@@ -58,8 +58,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define Battery_voltage_Pin GPIO_PIN_0
-#define Battery_voltage_GPIO_Port GPIOA
+#define BatteryVoltage_Pin GPIO_PIN_0
+#define BatteryVoltage_GPIO_Port GPIOA
 #define ESP_RX_Pin GPIO_PIN_2
 #define ESP_RX_GPIO_Port GPIOA
 #define ESP_TX_Pin GPIO_PIN_3

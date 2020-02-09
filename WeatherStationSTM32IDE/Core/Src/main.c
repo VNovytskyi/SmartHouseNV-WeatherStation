@@ -51,6 +51,11 @@
 
 #define RedLedLow  HAL_GPIO_WritePin(RedLed_GPIO_Port, RedLed_Pin, 0)
 #define RedLedHigh HAL_GPIO_WritePin(RedLed_GPIO_Port, RedLed_Pin, 1)
+
+#define Start   0
+#define Working 1
+#define Sleep   2
+#define Error   3
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -60,6 +65,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+int currentStationStatus = -1;
+bool ledsEnable = true;
+uint32_t lastPressed = 0;
 
 RTC_TimeTypeDef sTime = {0};
 RTC_DateTypeDef DateToUpdate = {0};
@@ -88,7 +96,7 @@ void BME280_GetWeather();
 void SendRequest();
 void DisconnectFromAP();
 void ShowTimeRTC();
-
+void StationStatus(int newStationStatus);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -131,37 +139,13 @@ int main(void)
   MX_RTC_Init();
   /* USER CODE BEGIN 2 */
 
-  for(int i = 0; i < 5; ++i)
-  {
-  	GreenLedLow;
-  	YellowLedLow;
-  	RedLedLow;
-
-	  HAL_Delay(100);
-
-	  GreenLedHigh;
-	  YellowLedHigh;
-	  RedLedHigh;
-
-	  HAL_Delay(100);
-  }
+  StationStatus(Start);
 
   int BME280_InitStatus = BME280_Init();
 
   if(BME280_InitStatus == BME280_INIT_FAIL)
   {
-  	GreenLedLow;
-  	YellowLedLow;
-  	RedLedLow;
-
-  	for(int i = 0; i < 10; ++i)
-  	{
-  		RedLedHigh;
-  		HAL_Delay(100);
-  		RedLedLow;
-  		HAL_Delay(100);
-  	}
-
+  	StationStatus(Error);
   	NVIC_SystemReset();
   }
 
@@ -174,9 +158,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  GreenLedLow;
-	  YellowLedHigh;
-	  RedLedLow;
+  	StationStatus(Working);
 
 	  request = false;
 	  connect = false;
@@ -202,14 +184,7 @@ int main(void)
 
 	  if(!connect)
 	  {
-	  	for(int i = 0; i < 10; ++i)
-	  	{
-	  		RedLedHigh;
-	  		HAL_Delay(100);
-	  		RedLedLow;
-	  		HAL_Delay(100);
-	  	}
-
+	  	StationStatus(Error);
 	  	NVIC_SystemReset();
 	  }
 
@@ -218,14 +193,7 @@ int main(void)
 
 	  if(!request)
 	  {
-	  	for(int i = 0; i < 10; ++i)
-	  	{
-	  		RedLedHigh;
-	  		HAL_Delay(100);
-	  		RedLedLow;
-	  		HAL_Delay(100);
-	  	}
-
+	  	StationStatus(Error);
 	  	NVIC_SystemReset();
 	  }
 
@@ -233,14 +201,7 @@ int main(void)
 
 		if(!disconnect)
 		{
-			for(int i = 0; i < 10; ++i)
-			{
-				RedLedHigh;
-				HAL_Delay(100);
-				RedLedLow;
-				HAL_Delay(100);
-			}
-
+			StationStatus(Error);
 			NVIC_SystemReset();
 		}
 
@@ -251,9 +212,7 @@ int main(void)
 	  ++counter;
 	  sprintf(buff, "[%d-%d-%d %d:%d:%d] %d\n",DateToUpdate.Date, DateToUpdate.Month, DateToUpdate.Year, sTime.Hours, sTime.Minutes, sTime.Seconds, counter);
 
-	  GreenLedHigh;
-	  YellowLedLow;
-	  RedLedLow;
+	  StationStatus(Sleep);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -334,6 +293,66 @@ void PC_Send(char *str)
 {
 	//HAL_UART_Transmit(&huart1,(uint8_t*)str,strlen(str),1000);
 	//CDC_Transmit_FS(str, strlen(str));
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	if(HAL_GetTick() - lastPressed > 500)
+	{
+		lastPressed = HAL_GetTick();
+		ledsEnable = !ledsEnable;
+		RedLedHigh;
+		StationStatus(-1);
+	}
+}
+
+void StationStatus(int newStationStatus)
+{
+	if(newStationStatus != -1)
+		currentStationStatus = newStationStatus;
+
+	GreenLedLow;
+	YellowLedLow;
+	RedLedLow;
+	//RedLedHigh;
+
+	switch(currentStationStatus)
+	{
+		case Start:
+			for(int i = 0; i < 5 && ledsEnable; ++i)
+			{
+			  GreenLedLow;
+			 	YellowLedLow;
+			 	RedLedLow;
+
+			 	HAL_Delay(100);
+
+				GreenLedHigh;
+			  YellowLedHigh;
+			  RedLedHigh;
+
+			  HAL_Delay(100);
+		  }
+			break;
+
+		case Working:
+			YellowLedHigh;
+			break;
+
+		case Sleep:
+			GreenLedHigh;
+			break;
+
+		case Error:
+			for(int i = 0; i < 10; ++i)
+			{
+	  		RedLedHigh;
+	  		HAL_Delay(100);
+			  RedLedLow;
+			  HAL_Delay(100);
+			}
+		  break;
+	}
 }
 
 /* USER CODE END 4 */
