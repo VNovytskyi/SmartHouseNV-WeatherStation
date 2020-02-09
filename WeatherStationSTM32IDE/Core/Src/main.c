@@ -69,9 +69,6 @@ int currentStationStatus = -1;
 bool ledsEnable = true;
 uint32_t lastPressed = 0;
 
-RTC_TimeTypeDef sTime = {0};
-RTC_DateTypeDef DateToUpdate = {0};
-
 char buff[128];
 float currentBatteryVoltage;
 int counter = 0;
@@ -81,6 +78,10 @@ bool request, connect, disconnect, echo, restart, test;
 BME280_WeatherData *currentWeather = NULL;
 
 volatile char recvComBuff[64];
+
+extern RTC_TimeTypeDef sTime;
+extern RTC_DateTypeDef DateToUpdate;
+extern RTC_AlarmTypeDef sAlarm;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -89,7 +90,6 @@ void SystemClock_Config(void);
 
 void PC_Send(char *str);
 float getBatteryVoltage();
-
 void BME280_Start();
 void ESP8266_Start();
 void BME280_GetWeather();
@@ -158,8 +158,30 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-  	ESP8266_ON();
   	StationStatus(Working);
+
+  	ESP8266_ON();
+
+  	sTime.Hours = 0;
+  	sTime.Minutes = 0;
+    sTime.Seconds = 0;
+ 	  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK)
+ 	  {
+ 	  	Error_Handler();
+  	}
+
+ 	  sAlarm.AlarmTime.Hours = 0;
+ 	  sAlarm.AlarmTime.Minutes = 0;
+ 	  sAlarm.AlarmTime.Seconds = 30;
+ 	  sAlarm.Alarm = RTC_ALARM_A;
+    if (HAL_RTC_SetAlarm(&hrtc, &sAlarm, RTC_FORMAT_BIN) != HAL_OK)
+    {
+    	Error_Handler();
+    }
+
+    HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+    ++counter;
+    sprintf(buff, "[%d-%d-%d %d:%d:%d] %d\n",DateToUpdate.Date, DateToUpdate.Month, DateToUpdate.Year, sTime.Hours, sTime.Minutes, sTime.Seconds, counter);
 
 	  request = false;
 	  connect = false;
@@ -205,11 +227,6 @@ int main(void)
 		}
 
 	  ESP8266_OFF();
-
-	  HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
-
-	  ++counter;
-	  sprintf(buff, "[%d-%d-%d %d:%d:%d] %d\n",DateToUpdate.Date, DateToUpdate.Month, DateToUpdate.Year, sTime.Hours, sTime.Minutes, sTime.Seconds, counter);
 
 	  StationStatus(Sleep);
     /* USER CODE END WHILE */
@@ -401,6 +418,10 @@ void StationStatus(int newStationStatus)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
+	while(1)
+	{
+		StationStatus(Error);
+	}
   /* User can add his own implementation to report the HAL error return state */
 
   /* USER CODE END Error_Handler_Debug */
