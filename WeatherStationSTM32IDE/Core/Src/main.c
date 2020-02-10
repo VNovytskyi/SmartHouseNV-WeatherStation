@@ -56,6 +56,8 @@
 #define Working 1
 #define Sleep   2
 #define Error   3
+#define Warning 4
+#define OperationGood 5
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -97,6 +99,8 @@ void SendRequest();
 void DisconnectFromAP();
 void ShowTimeRTC();
 void StationStatus(int newStationStatus);
+void StopMode();
+void SleepMode();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -162,27 +166,6 @@ int main(void)
 
   	ESP8266_ON();
 
-  	sTime.Hours = 0;
-  	sTime.Minutes = 0;
-    sTime.Seconds = 0;
- 	  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK)
- 	  {
- 	  	Error_Handler();
-  	}
-
- 	  sAlarm.AlarmTime.Hours = 0;
- 	  sAlarm.AlarmTime.Minutes = 0;
- 	  sAlarm.AlarmTime.Seconds = 30;
- 	  sAlarm.Alarm = RTC_ALARM_A;
-    if (HAL_RTC_SetAlarm(&hrtc, &sAlarm, RTC_FORMAT_BIN) != HAL_OK)
-    {
-    	Error_Handler();
-    }
-
-    HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
-    ++counter;
-    sprintf(buff, "[%d-%d-%d %d:%d:%d] %d\n",DateToUpdate.Date, DateToUpdate.Month, DateToUpdate.Year, sTime.Hours, sTime.Minutes, sTime.Seconds, counter);
-
 	  request = false;
 	  connect = false;
 	  disconnect = false;
@@ -192,6 +175,7 @@ int main(void)
 
 	  for(int i = 0; i < 3; ++i)
 	  {
+	  	StationStatus(Working);
 	  	HAL_Delay(2000);
 
 	  	//connect = ESP8266_ConnectTo("Snapy", "31055243167vlad");
@@ -200,6 +184,7 @@ int main(void)
 	  	if(connect)
 	  		  break;
 
+	  	StationStatus(Warning);
 	  	restart = ESP8266_Restart();
 	  }
 
@@ -227,12 +212,30 @@ int main(void)
 		}
 
 	  ESP8266_OFF();
-
-	  StationStatus(Sleep);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  HAL_Delay(10000);
+	  sTime.Hours = 0;
+	  sTime.Minutes = 0;
+	  sTime.Seconds = 0;
+	  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK)
+	  {
+	  	Error_Handler();
+	  }
+
+	  sAlarm.AlarmTime.Hours = 0;
+	  sAlarm.AlarmTime.Minutes = 0;
+	  sAlarm.AlarmTime.Seconds = 15;
+	  sAlarm.Alarm = RTC_ALARM_A;
+	  if (HAL_RTC_SetAlarm(&hrtc, &sAlarm, RTC_FORMAT_BIN) != HAL_OK)
+	  {
+	  	Error_Handler();
+	  }
+
+	  StationStatus(Sleep);
+	  //HAL_Delay(3000);
+	  //StopMode();
+	  SleepMode();
   }
   /* USER CODE END 3 */
 }
@@ -355,7 +358,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 		StationStatus(-1);
 	}
-
 }
 
 void StationStatus(int newStationStatus)
@@ -405,10 +407,48 @@ void StationStatus(int newStationStatus)
 					HAL_Delay(100);
 				}
 				break;
+
+			case Warning:
+				for(int i = 0; i < 5; ++i)
+				{
+					YellowLedHigh;
+					HAL_Delay(100);
+					YellowLedLow;
+					HAL_Delay(100);
+				}
+				break;
+
+			case OperationGood:
+				GreenLedHigh;
+				HAL_Delay(300);
+				GreenLedLow;
+				break;
 		}
 	}
 }
 
+void StopMode()
+{
+	HAL_SuspendTick();
+	__HAL_RCC_PWR_CLK_ENABLE();
+	HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+	HAL_ResumeTick();
+}
+
+void SleepMode()
+{
+    //Suspend Tick increment to prevent wakeup by Systick interrupt. Otherwise the Systick interrupt will wake up the device within 1ms (HAL time base)
+    HAL_SuspendTick();
+
+    //Before we can access to every register of the PWR peripheral we must enable it
+    __HAL_RCC_PWR_CLK_ENABLE();
+
+    //Request to enter SLEEP mode
+    HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+
+    //Resume Tick interrupt if disabled prior to sleep mode entry
+    HAL_ResumeTick();
+}
 /* USER CODE END 4 */
 
 /**
