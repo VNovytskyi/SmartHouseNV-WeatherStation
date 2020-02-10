@@ -101,6 +101,9 @@ void ShowTimeRTC();
 void StationStatus(int newStationStatus);
 void StopMode();
 void SleepMode();
+void Standby();
+void DisablePeripherals(void);
+void EnablePeripherals(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -162,6 +165,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+  	//EnablePeripherals();
   	StationStatus(Working);
 
   	ESP8266_ON();
@@ -225,17 +229,22 @@ int main(void)
 
 	  sAlarm.AlarmTime.Hours = 0;
 	  sAlarm.AlarmTime.Minutes = 0;
-	  sAlarm.AlarmTime.Seconds = 15;
+	  sAlarm.AlarmTime.Seconds = 10;
 	  sAlarm.Alarm = RTC_ALARM_A;
 	  if (HAL_RTC_SetAlarm(&hrtc, &sAlarm, RTC_FORMAT_BIN) != HAL_OK)
 	  {
 	  	Error_Handler();
 	  }
 
+	  StationStatus(OperationGood);
+	  //DisablePeripherals();
+
 	  StationStatus(Sleep);
+
 	  //HAL_Delay(3000);
 	  //StopMode();
-	  SleepMode();
+	  //SleepMode();
+	  Standby();
   }
   /* USER CODE END 3 */
 }
@@ -295,14 +304,12 @@ float getBatteryVoltage()
 	const float ADC_ReferenceVoltage = 5.0;
 	const float ADC_Resolution = 4095;
 
-	MX_ADC1_Init();
+
 
 	HAL_ADC_Start(&hadc1);
 	HAL_ADC_PollForConversion(&hadc1, 100);
 	uint32_t ADC_Value = HAL_ADC_GetValue(&hadc1);
 	HAL_ADC_Stop(&hadc1);
-
-	HAL_ADC_DeInit(&hadc1);
 
 	float ADC_Voltage = (ADC_Value / ADC_Resolution) * ADC_ReferenceVoltage;
 
@@ -331,8 +338,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
 			ledsEnable = false;
 
-			HAL_GPIO_DeInit(GPIOB, YellowLed_Pin | GreenLed_Pin);
-			HAL_GPIO_DeInit(RedLed_GPIO_Port, RedLed_Pin);
+
 		}
 		else
 		{
@@ -421,6 +427,7 @@ void StationStatus(int newStationStatus)
 				GreenLedHigh;
 				HAL_Delay(300);
 				GreenLedLow;
+				HAL_Delay(300);
 				break;
 		}
 	}
@@ -447,6 +454,49 @@ void SleepMode()
 
     //Resume Tick interrupt if disabled prior to sleep mode entry
     HAL_ResumeTick();
+}
+
+void Standby()
+{
+    //Before we can access to every register of the PWR peripheral we must enable it
+    __HAL_RCC_PWR_CLK_ENABLE();
+
+    //Disable WKUP pin
+    HAL_PWR_DisableWakeUpPin(PWR_WAKEUP_PIN1);
+
+    //Clear PWR wake up Flag
+    __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
+
+    //Enable WKUP pin
+    //HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN1);
+
+    //Enter STANDBY mode
+    HAL_PWR_EnterSTANDBYMode();
+
+    //End of program :)
+}
+
+void EnablePeripherals(void)
+{
+	MX_GPIO_Init();
+	MX_ADC1_Init();
+	MX_I2C1_Init();
+	MX_USART2_UART_Init();
+}
+
+void DisablePeripherals(void)
+{
+	HAL_ADC_MspDeInit(&hadc1);
+	HAL_UART_MspDeInit(&huart2);
+	HAL_I2C_MspDeInit(&hi2c1);
+
+	HAL_GPIO_DeInit(GPIOB, YellowLed_Pin | GreenLed_Pin);
+	HAL_GPIO_DeInit(RedLed_GPIO_Port, RedLed_Pin);
+
+	__HAL_RCC_GPIOA_CLK_DISABLE();
+	__HAL_RCC_GPIOB_CLK_DISABLE();
+	__HAL_RCC_GPIOC_CLK_DISABLE();
+	__HAL_RCC_GPIOD_CLK_DISABLE();
 }
 /* USER CODE END 4 */
 
