@@ -14,3 +14,20 @@ The main goal of the project is to create an autonomous Wi-Fi weather station ba
 <p align="center">
   <img src="Website/images/4.png" title="hover text">
 </p>
+<br>
+<p align="center">
+  <img src="Website/images/5.PNG" title="hover text">
+</p>
+
+## Сomponents
+- STM32F103C8
+- ESP-01
+- BME280
+- TP4056
+- MT3608
+- Balancer 3.3V
+- 3xButton
+- 3xLed
+- 3xСapacitor
+- 2xConnector
+- 5xResistor
