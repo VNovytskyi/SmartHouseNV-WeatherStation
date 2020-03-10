@@ -2,7 +2,7 @@
 <p align="center">
   <img src="Website/images/1.png" width="350" title="hover text">
 </p>
-The main goal of the project is to create an autonomous Wi-Fi weather station based on STM32F103. ESP-01 is used for transmitt data to server and BME280 for getting temperature, humidity, pressure readings. 
+The main goal of the project is to create an autonomous Wi-Fi weather station based on STM32F103. ESP-01 is used for transmitt data to server and BME280 for getting temperature, humidity, pressure readings. In the future, this weather station will become part of the smart home.
 <br>
 <br>
 <p align="center">
@@ -36,3 +36,20 @@ The main goal of the project is to create an autonomous Wi-Fi weather station ba
 - 1xNCR18650B (Li-ion)
 - 1xPanel for battery (18650)
 - 1xSolder breadboard
+
+## Database
+The database consists of one table:
+<p align="center">
+  <img src="Website/images/8.PNG" title="hover text">
+</p>
+
+## Display result
+For debugging, output to the table is used:
+<p align="center">
+  <img src="Website/images/6.PNG" title="hover text">
+</p>
+The average user takes information from the site:
+<br>
+<p align="center">
+  <img src="Website/images/7.PNG" title="hover text">
+</p>
