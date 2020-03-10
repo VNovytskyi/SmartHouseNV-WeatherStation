@@ -28,6 +28,11 @@ The main goal of the project is to create an autonomous Wi-Fi weather station ba
 - Balancer 3.3V
 - 3xButton
 - 3xLed
-- 3xСapacitor
+- 3xСapacitor (16V, 1000uF)
 - 2xConnector
-- 5xResistor
+- 5xResistor (3x220Ω, 1x91kΩ, 1x47kΩ)
+- 3xSchottky diodes
+- 1xSolar panel (6V, 1W)
+- 1xNCR18650B (Li-ion)
+- 1xPanel for battery (18650)
+- 1xSolder breadboard
