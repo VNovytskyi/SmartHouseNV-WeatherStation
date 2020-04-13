@@ -23,7 +23,7 @@
 #include "adc.h"
 #include "i2c.h"
 #include "rtc.h"
-#include "usart.h"
+#include "spi.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -34,7 +34,7 @@
 #include <stdbool.h>
 
 #include "BME280.h"
-#include "ESP8266.h"
+#include "NRF.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,21 +43,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define GreenLedLow  HAL_GPIO_WritePin(GreenLed_GPIO_Port, GreenLed_Pin, 0)
-#define GreenLedHigh HAL_GPIO_WritePin(GreenLed_GPIO_Port, GreenLed_Pin, 1)
-
-#define YellowLedLow  HAL_GPIO_WritePin(YellowLed_GPIO_Port, YellowLed_Pin, 0)
-#define YellowLedHigh HAL_GPIO_WritePin(YellowLed_GPIO_Port, YellowLed_Pin, 1)
-
-#define RedLedLow  HAL_GPIO_WritePin(RedLed_GPIO_Port, RedLed_Pin, 0)
-#define RedLedHigh HAL_GPIO_WritePin(RedLed_GPIO_Port, RedLed_Pin, 1)
-
-#define Start   0
-#define Working 1
-#define Sleep   2
-#define Error   3
-#define Warning 4
-#define OperationGood 5
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -67,17 +52,31 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+/* USER CODE BEGIN PD */
+
+#define Start 0
+#define Working 1
+#define Sleep 2
+#define Error 3
+#define Warning 4
+#define OperationGood 5
+
+#define RedLedHigh HAL_GPIO_WritePin(RedLed_GPIO_Port, RedLed_Pin, 1)
+#define RedLedLow HAL_GPIO_WritePin(RedLed_GPIO_Port, RedLed_Pin, 0)
+
+#define YellowLedHigh HAL_GPIO_WritePin(YellowLed_GPIO_Port, YellowLed_Pin, 1)
+#define YellowLedLow  HAL_GPIO_WritePin(YellowLed_GPIO_Port, YellowLed_Pin, 0)
+
+#define GreenLedHigh HAL_GPIO_WritePin(GreenLed_GPIO_Port, GreenLed_Pin, 1)
+#define GreenLedLow  HAL_GPIO_WritePin(GreenLed_GPIO_Port, GreenLed_Pin, 0)
+
+#define ownNum  3
+const uint8_t serverAddr[] = {1, 1, 1, 1, 1};
+const uint8_t ownAddr[] = {ownNum, 1, 1, 1, 1};
+
 int currentStationStatus = -1;
 bool ledsEnable = true;
 uint32_t lastPressed = 0;
-
-char buff[128];
-float currentBatteryVoltage;
-int counter = 0;
-
-bool request, connect, disconnect, echo, restart, test;
-
-BME280_WeatherData *currentWeather = NULL;
 
 volatile char recvComBuff[64];
 
@@ -92,12 +91,6 @@ void SystemClock_Config(void);
 
 void PC_Send(char *str);
 float getBatteryVoltage();
-void BME280_Start();
-void ESP8266_Start();
-void BME280_GetWeather();
-void SendRequest();
-void DisconnectFromAP();
-void ShowTimeRTC();
 void StationStatus(int newStationStatus);
 void StopMode();
 void SleepMode();
@@ -120,7 +113,6 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
-  
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -142,8 +134,8 @@ int main(void)
   MX_GPIO_Init();
   MX_ADC1_Init();
   MX_I2C1_Init();
-  MX_USART2_UART_Init();
   MX_RTC_Init();
+  MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
 
   StationStatus(Start);
@@ -156,66 +148,37 @@ int main(void)
   	NVIC_SystemReset();
   }
 
-  ESP8266_SetConfig(&huart2, GPIOB, GPIO_PIN_10);
+  NRF_ON();
+  NRF_Init(serverAddr, ownAddr);
+
+  uint8_t status = NRF_ReadReg(NRF_REG_STATUS);
   /* USER CODE END 2 */
- 
- 
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-  	//EnablePeripherals();
   	StationStatus(Working);
 
-  	ESP8266_ON();
 
-	  request = false;
-	  connect = false;
-	  disconnect = false;
+	  uint8_t currentBatteryVoltage = (uint8_t)(getBatteryVoltage() * 100);
 
-	  currentWeather = BME280_GetWeatherData();
-	  currentBatteryVoltage = getBatteryVoltage();
+	  int8_t temperature = (int8_t)BME280_ReadTemperature();
+	  uint8_t humidity = (uint8_t)BME280_ReadHumidity();
+	  uint16_t pressure = (uint16_t)(BME280_ReadPressure() * 0.00075);
 
-	  for(int i = 0; i < 3; ++i)
+	  uint8_t buf[] = {0xff, ownNum, 0x03, temperature, humidity, (pressure >> 8) & 0xff, pressure & 0xff};
+
+
+	  uint8_t result = NRF_SendMessage(serverAddr, buf);
+
+	  if(result != 1)
 	  {
-	  	StationStatus(Working);
-	  	HAL_Delay(2000);
-
-	  	//connect = ESP8266_ConnectTo("Snapy", "31055243167vlad");
-	  	connect = ESP8266_ConnectTo("MERCUSYS_7EBA", "3105vlad3010vlada");
-
-	  	if(connect)
-	  		  break;
-
 	  	StationStatus(Warning);
-	  	restart = ESP8266_Restart();
 	  }
 
-	  if(!connect)
-	  {
-	  	StationStatus(Error);
-	  	NVIC_SystemReset();
-	  }
-
-	  sprintf(buff, "GET /weatherStation/main.php?type=addNewRecord&t=%2.2f&h=%3.2f&p=%4.2f&v=%2.2f", currentWeather->temperature, currentWeather->humidity, currentWeather->pressure, currentBatteryVoltage);
-	  request = ESP8266_SendRequest("TCP", "192.168.1.102", 80, buff);
-
-	  if(!request)
-	  {
-	  	StationStatus(Error);
-	  	NVIC_SystemReset();
-	  }
-
-	  disconnect = ESP8266_DisconnectFromWifi();
-
-		if(!disconnect)
-		{
-			StationStatus(Error);
-			NVIC_SystemReset();
-		}
-
-	  ESP8266_OFF();
+	  NRF_OFF();
+	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -241,10 +204,10 @@ int main(void)
 
 	  StationStatus(Sleep);
 
-	  //HAL_Delay(3000);
+	  HAL_Delay(3000);
 	  //StopMode();
 	  //SleepMode();
-	  Standby();
+	  //Standby();
   }
   /* USER CODE END 3 */
 }
@@ -297,13 +260,14 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 float getBatteryVoltage()
 {
+	//TODO: Разобраться как правильно измерять напряжение
 	const float r1 = 47.7;
 	const float r2 = 91;
 
-	//const float ADC_ReferenceVoltage = 3.3;
-	const float ADC_ReferenceVoltage = 5.0;
-	const float ADC_Resolution = 4095;
+	const float voltageFall = 0.659;
 
+	const float ADC_ReferenceVoltage = 3.3;
+	const float ADC_Resolution = 4095;
 
 
 	HAL_ADC_Start(&hadc1);
@@ -311,9 +275,10 @@ float getBatteryVoltage()
 	uint32_t ADC_Value = HAL_ADC_GetValue(&hadc1);
 	HAL_ADC_Stop(&hadc1);
 
-	float ADC_Voltage = (ADC_Value / ADC_Resolution) * ADC_ReferenceVoltage;
+	float ADC_Voltage = (ADC_Value / ADC_Resolution) * ADC_ReferenceVoltage; //0..Reference value
 
 	float realVoltage = ADC_Voltage * (r1 + r2) / r2;
+	//float realVoltage = ADC_Voltage / voltageFall;
 
 	return realVoltage;
 }
@@ -337,8 +302,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 			RedLedLow;
 
 			ledsEnable = false;
-
-
 		}
 		else
 		{
@@ -481,13 +444,12 @@ void EnablePeripherals(void)
 	MX_GPIO_Init();
 	MX_ADC1_Init();
 	MX_I2C1_Init();
-	MX_USART2_UART_Init();
 }
 
 void DisablePeripherals(void)
 {
 	HAL_ADC_MspDeInit(&hadc1);
-	HAL_UART_MspDeInit(&huart2);
+	HAL_SPI_MspDeInit(&hspi1);
 	HAL_I2C_MspDeInit(&hi2c1);
 
 	HAL_GPIO_DeInit(GPIOB, YellowLed_Pin | GreenLed_Pin);
