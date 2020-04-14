@@ -138,7 +138,7 @@ int main(void)
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
 
-  StationStatus(Start);
+  //StationStatus(Start);
 
   int BME280_InitStatus = BME280_Init();
 
@@ -160,17 +160,17 @@ int main(void)
   {
   	StationStatus(Working);
 
-
-	  uint8_t currentBatteryVoltage = (uint8_t)(getBatteryVoltage() * 100);
+  	float v = getBatteryVoltage() + 0.1;
+	  uint8_t currentBatteryVoltage = (uint8_t)(v * 10);
 
 	  int8_t temperature = (int8_t)BME280_ReadTemperature();
 	  uint8_t humidity = (uint8_t)BME280_ReadHumidity();
 	  uint16_t pressure = (uint16_t)(BME280_ReadPressure() * 0.00075);
 
-	  uint8_t buf[] = {0xff, ownNum, 0x03, temperature, humidity, (pressure >> 8) & 0xff, pressure & 0xff};
+	  uint8_t buf[] = {0xff, ownNum, 0x03, temperature, humidity, (pressure >> 8) & 0xff, pressure & 0xff, currentBatteryVoltage, '\n'};
 
-
-	  uint8_t result = NRF_SendMessage(serverAddr, buf);
+	  uint8_t result = -10;
+	  result = NRF_SendMessage(serverAddr, buf);
 
 	  if(result != 1)
 	  {
@@ -199,15 +199,15 @@ int main(void)
 	  	Error_Handler();
 	  }
 
-	  StationStatus(OperationGood);
+	  //StationStatus(OperationGood);
 	  //DisablePeripherals();
 
-	  StationStatus(Sleep);
+	  //StationStatus(Sleep);
 
-	  HAL_Delay(3000);
+	  //HAL_Delay(3000);
 	  //StopMode();
 	  //SleepMode();
-	  //Standby();
+	  Standby();
   }
   /* USER CODE END 3 */
 }
@@ -256,15 +256,12 @@ void SystemClock_Config(void)
     Error_Handler();
   }
 }
-
+//const float r1 = 42800; //const float r2 = 89000;
 /* USER CODE BEGIN 4 */
 float getBatteryVoltage()
 {
-	//TODO: Разобраться как правильно измерять напряжение
-	const float r1 = 47.7;
-	const float r2 = 91;
-
-	const float voltageFall = 0.659;
+	const float r1 = 47700;
+	const float r2 = 91000;
 
 	const float ADC_ReferenceVoltage = 3.3;
 	const float ADC_Resolution = 4095;
@@ -278,7 +275,6 @@ float getBatteryVoltage()
 	float ADC_Voltage = (ADC_Value / ADC_Resolution) * ADC_ReferenceVoltage; //0..Reference value
 
 	float realVoltage = ADC_Voltage * (r1 + r2) / r2;
-	//float realVoltage = ADC_Voltage / voltageFall;
 
 	return realVoltage;
 }
