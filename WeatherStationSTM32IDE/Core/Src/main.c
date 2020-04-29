@@ -141,7 +141,6 @@ int main(void)
   //StationStatus(Start);
 
   int BME280_InitStatus = BME280_Init();
-
   if(BME280_InitStatus == BME280_INIT_FAIL)
   {
   	StationStatus(Error);
@@ -152,62 +151,60 @@ int main(void)
   NRF_Init(serverAddr, ownAddr);
 
   uint8_t status = NRF_ReadReg(NRF_REG_STATUS);
+  if(status == 0x00 || status == 0xff)
+  {
+  	StationStatus(Error);
+  	NVIC_SystemReset();
+  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+  float v = getBatteryVoltage() + 0.1;
+  uint8_t currentBatteryVoltage = (uint8_t)(v * 10);
+
+  int8_t temperature = (int8_t)BME280_ReadTemperature();
+  uint8_t humidity = (uint8_t)BME280_ReadHumidity();
+  uint16_t pressure = (uint16_t)(BME280_ReadPressure() * 0.00075);
+
+  uint8_t buf[] = {0xff, ownNum, 0x03, temperature, humidity, (pressure >> 8) & 0xff, pressure & 0xff, currentBatteryVoltage, '\n'};
+
+  uint8_t result = -10;
+  result = NRF_SendMessage(serverAddr, buf);
+
+  if(result != 1)
+  {
+  	StationStatus(Warning);
+  }
+
+  NRF_OFF();
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+
+  sTime.Hours = 0;
+  sTime.Minutes = 0;
+  sTime.Seconds = 0;
+	if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK)
+  {
+		Error_Handler();
+  }
+
+	sAlarm.AlarmTime.Hours = 0;
+  sAlarm.AlarmTime.Minutes = 30;
+  sAlarm.AlarmTime.Seconds = 0;
+  sAlarm.Alarm = RTC_ALARM_A;
+  if (HAL_RTC_SetAlarm(&hrtc, &sAlarm, RTC_FORMAT_BIN) != HAL_OK)
+  {
+  	Error_Handler();
+  }
+
+  Standby();
+
   while (1)
   {
-  	StationStatus(Working);
-
-  	float v = getBatteryVoltage() + 0.1;
-	  uint8_t currentBatteryVoltage = (uint8_t)(v * 10);
-
-	  int8_t temperature = (int8_t)BME280_ReadTemperature();
-	  uint8_t humidity = (uint8_t)BME280_ReadHumidity();
-	  uint16_t pressure = (uint16_t)(BME280_ReadPressure() * 0.00075);
-
-	  uint8_t buf[] = {0xff, ownNum, 0x03, temperature, humidity, (pressure >> 8) & 0xff, pressure & 0xff, currentBatteryVoltage, '\n'};
-
-	  uint8_t result = -10;
-	  result = NRF_SendMessage(serverAddr, buf);
-
-	  if(result != 1)
-	  {
-	  	StationStatus(Warning);
-	  }
-
-	  NRF_OFF();
-	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  sTime.Hours = 0;
-	  sTime.Minutes = 0;
-	  sTime.Seconds = 0;
-	  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK)
-	  {
-	  	Error_Handler();
-	  }
-
-	  sAlarm.AlarmTime.Hours = 0;
-	  sAlarm.AlarmTime.Minutes = 0;
-	  sAlarm.AlarmTime.Seconds = 10;
-	  sAlarm.Alarm = RTC_ALARM_A;
-	  if (HAL_RTC_SetAlarm(&hrtc, &sAlarm, RTC_FORMAT_BIN) != HAL_OK)
-	  {
-	  	Error_Handler();
-	  }
-
-	  //StationStatus(OperationGood);
-	  //DisablePeripherals();
-
-	  //StationStatus(Sleep);
-
-	  //HAL_Delay(3000);
-	  //StopMode();
-	  //SleepMode();
-	  Standby();
   }
   /* USER CODE END 3 */
 }
@@ -256,7 +253,7 @@ void SystemClock_Config(void)
     Error_Handler();
   }
 }
-//const float r1 = 42800; //const float r2 = 89000;
+
 /* USER CODE BEGIN 4 */
 float getBatteryVoltage()
 {
